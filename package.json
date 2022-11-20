@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon --inspect=0.0.0.0:3098 --watch src .",
-    "start": "node ."
+    "start": "node .",
+    "addUser": "node src/scripts/addUser.js"
   },
   "author": "",
   "license": "ISC",

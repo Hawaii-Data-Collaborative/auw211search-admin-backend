@@ -9,6 +9,15 @@
       "type": "node",
       "request": "attach",
       "port": 3098
+    },
+    {
+      "name": "yarn addUser",
+      "request": "launch",
+      "runtimeArgs": [
+        "addUser"
+      ],
+      "runtimeExecutable": "yarn",
+      "type": "node"
     }
   ]
 }
