@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+echo "[deploy] pushing code ..."
+git push
 echo "[deploy] ssh'ing ..."
 ssh wwa bash << EOF
 cd /var/www/auwsearch.windwardapps.com/auw-admin
