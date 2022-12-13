@@ -3,7 +3,7 @@ const { prisma } = require('../prisma')
 
 async function userActivityEvents(req, res) {
   try {
-    const rows = await prisma.$queryRaw`select distinct "event" from "user_activity"`
+    const rows = await prisma.$queryRaw`select distinct "event" from "user_activity" order by 1`
     const rv = rows.map(r => r.event)
     return res.json(rv)
   } catch (err) {
