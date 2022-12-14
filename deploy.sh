@@ -8,7 +8,7 @@ cd /var/www/auwsearch.windwardapps.com/auw-admin
 echo "[deploy] pulling code ..."
 git pull
 echo "[deploy] installing dependencies ..."
-/home/kyle/bin/yarn
+/home/kyle/bin/yarn --production
 echo "[deploy] compiling ..."
 npx prisma generate
 echo "[deploy] restarting ..."
