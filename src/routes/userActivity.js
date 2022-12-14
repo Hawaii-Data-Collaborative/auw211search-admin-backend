@@ -1,10 +1,9 @@
 const debug = require('debug')('app:routes:userActivity')
-const { prisma } = require('../prisma')
+const { getUserActivityEventNames } = require('../services/userActivity')
 
 async function userActivityEvents(req, res) {
   try {
-    const rows = await prisma.$queryRaw`select distinct "event" from "user_activity" order by 1`
-    const rv = rows.map(r => r.event)
+    const rv = await getUserActivityEventNames()
     return res.json(rv)
   } catch (err) {
     debug(err)

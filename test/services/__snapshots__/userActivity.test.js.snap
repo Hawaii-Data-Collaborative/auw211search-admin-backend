@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getUserActivityEventNames() 1`] = `
+[
+  "PageLoad",
+  "Referral",
+  "Referral.Phone",
+  "Referral.Phone.Call",
+  "Referral.Phone.CopyNumber",
+  "Referral.Phone.ShowInfo",
+  "Referral.Website",
+  "Referral.Website.CopyWebsite",
+  "Referral.Website.OpenInNewTab",
+  "Referral.Website.ShowInfo",
+  "Search",
+  "Search.Category",
+  "Search.Keyword",
+  "Search.Taxonomy",
+]
+`;
