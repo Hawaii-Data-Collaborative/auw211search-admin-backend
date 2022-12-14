@@ -839,6 +839,7 @@ model settings {
   id               Int    @id @default(autoincrement())
   trendingRange    String
   trendingMinCount Int
+  trendingMaxShow  Int
   createdAt        String
 }
 
