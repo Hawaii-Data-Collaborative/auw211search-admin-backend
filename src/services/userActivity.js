@@ -19,3 +19,11 @@ async function getUserActivityEventNames() {
 }
 
 exports.getUserActivityEventNames = getUserActivityEventNames
+
+async function getUserActivityUsers() {
+  const rows = await prisma.$queryRaw`select distinct "userId" from "user_activity" order by 1`
+  const userIds = rows.map(r => r.userId)
+  return userIds
+}
+
+exports.getUserActivityUsers = getUserActivityUsers
