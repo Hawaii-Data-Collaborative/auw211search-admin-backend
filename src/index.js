@@ -25,6 +25,7 @@ app.post('/api/logout', routes.logout)
 app.get('/api/session', routes.session)
 app.get('/api/settings', routes.getSettings)
 app.post('/api/settings', routes.saveSettings)
+app.use('/api/chart', routes.chart)
 
 app.listen(port, () => {
   console.log(`App server listening on port ${port}`)
