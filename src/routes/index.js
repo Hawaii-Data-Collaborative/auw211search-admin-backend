@@ -4,5 +4,6 @@ module.exports = {
   ...require('./logout'),
   ...require('./session'),
   ...require('./settings'),
+  ...require('./trends'),
   ...require('./userActivity')
 }

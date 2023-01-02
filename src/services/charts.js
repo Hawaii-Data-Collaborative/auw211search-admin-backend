@@ -1,13 +1,6 @@
 const _ = require('lodash')
-const dayjs = require('dayjs')
-const utc = require('dayjs/plugin/utc')
-const timezone = require('dayjs/plugin/timezone')
-const duration = require('dayjs/plugin/duration')
+const dayjs = require('../dayjs')
 const { prisma } = require('../prisma')
-
-dayjs.extend(utc)
-dayjs.extend(timezone)
-dayjs.extend(duration)
 
 const TZ = 'US/Hawaii'
 
