@@ -49,3 +49,21 @@ async function getTrendStartDateAsInt(settings) {
   const start = Number(dayjs().subtract(value, unit).format('YYYYMMDD'))
   return start
 }
+
+async function getManualTrends() {
+  const settings = await prisma.settings.findUnique({ where: { id: 1 }, rejectOnNotFound: true })
+  let rv = []
+  if (settings.trends) {
+    rv = JSON.parse(settings.trends)
+  }
+  return rv
+}
+
+exports.getManualTrends = getManualTrends
+
+async function saveTrends(trends) {
+  const rv = await prisma.settings.update({ data: { trends: JSON.stringify(trends) }, where: { id: 1 } })
+  return rv
+}
+
+exports.saveTrends = saveTrends
