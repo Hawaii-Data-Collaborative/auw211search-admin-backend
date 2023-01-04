@@ -106,42 +106,53 @@ async function getRelatedNeedsChart({ start, end } = {}) {
     }
   })
 
-  const root = { name: '', createdAt: new Date(), children: [] }
+  let nodes = new Set()
+  let links = []
   const groups = _.groupBy(uaList, 'userId')
   // eslint-disable-next-line no-unused-vars
   for (let [userId, uaList] of Object.entries(groups)) {
-    let parent = root
     for (const ua of uaList) {
       ua.createdAt = new Date(ua.createdAt)
     }
     uaList = _.sortBy(uaList, 'createdAt')
     let prevUa
+    let prevSearchText
     for (const ua of uaList) {
-      const keywords = JSON.parse(ua.data).terms?.trim()
-      if (!keywords) {
-        continue
-      }
-      const node = { name: keywords, createdAt: ua.createdAt, children: [] }
-      if (prevUa) {
-        if (node.name === parent.name) {
-          continue
+      const searchText = JSON.parse(ua.data).terms?.toLowerCase().trim()
+      if (searchText) {
+        nodes.add(searchText)
+        if (prevUa) {
+          if (searchText !== prevSearchText) {
+            const minutesDiff = dayjs.duration(ua.createdAt - prevUa.createdAt).asMinutes()
+            if (minutesDiff <= 60) {
+              links.push([prevSearchText, searchText])
+            }
+          }
         }
-        const minutesDiff = dayjs.duration(ua.createdAt - prevUa.createdAt).asMinutes()
-        if (minutesDiff > 60) {
-          parent = root
-          parent.children.push(node)
-        } else {
-          parent.children.push(node)
-        }
-      } else {
-        parent.children.push(node)
       }
-      parent = node
       prevUa = ua
+      prevSearchText = searchText
     }
   }
 
-  return root
+  nodes = Array.from(nodes).map(n => ({ id: n, value: 0 }))
+  links = links.map(entry => {
+    const [prevSearchText, searchText] = entry
+    return {
+      source: prevSearchText,
+      target: searchText
+    }
+  })
+
+  for (const node of nodes) {
+    for (const link of links) {
+      if (link.source === node.id || link.target === node.id) {
+        node.value++
+      }
+    }
+  }
+
+  return { nodes, links }
 }
 
 exports.getRelatedNeedsChart = getRelatedNeedsChart
