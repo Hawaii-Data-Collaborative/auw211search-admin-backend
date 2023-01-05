@@ -1,4 +1,5 @@
 module.exports = {
+  ...require('./categories'),
   ...require('./chart'),
   ...require('./login'),
   ...require('./logout'),
