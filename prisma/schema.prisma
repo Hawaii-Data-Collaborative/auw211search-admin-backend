@@ -866,7 +866,7 @@ model user {
 }
 
 model session {
-  id        Int     @id @default(autoincrement())
+  id        String  @id
   userId    Int
   data      String?
   createdAt String?
