@@ -11,6 +11,7 @@ async function session(req, res) {
     rv = { user }
   } else {
     debug('no session')
+    res.status(401)
   }
 
   res.json(rv)

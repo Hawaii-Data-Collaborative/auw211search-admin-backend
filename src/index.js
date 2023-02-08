@@ -29,6 +29,7 @@ app.use(cookieParser())
 
 // Anon routes
 app.post('/api/login', routes.login)
+app.post('/api/logout', routes.logout)
 app.get('/api/session', routes.session)
 
 // Session middleware
@@ -40,7 +41,6 @@ app.post('/api/program', prismaHandler)
 app.post('/api/user_activity', prismaHandler)
 app.get('/api/user_activity_events', routes.userActivityEvents)
 app.get('/api/user_activity_users', routes.userActivityUsers)
-app.post('/api/logout', routes.logout)
 app.get('/api/settings', routes.getSettings)
 app.post('/api/settings', routes.saveSettings)
 app.use('/api/chart', routes.chart)
@@ -57,6 +57,7 @@ async function sessionMiddleware(req, res, next) {
   if (user) {
     next()
   } else {
+    res.status(401)
     next(new Error('Not authenticated'))
   }
 }
