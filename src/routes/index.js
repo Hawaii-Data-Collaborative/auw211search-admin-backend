@@ -7,5 +7,6 @@ module.exports = {
   ...require('./session'),
   ...require('./settings'),
   ...require('./trends'),
-  ...require('./userActivity')
+  ...require('./userActivity'),
+  ...require('./users')
 }

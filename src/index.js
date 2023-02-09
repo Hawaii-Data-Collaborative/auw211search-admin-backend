@@ -49,6 +49,7 @@ app.post('/api/settings', routes.saveSettings)
 app.use('/api/chart', routes.chart)
 app.use('/api/trends', routes.trends)
 app.use('/api/categories', routes.categories)
+app.use('/api/users', routes.users)
 
 app.listen(port, () => {
   console.log(`App server listening on port ${port}`)

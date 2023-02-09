@@ -15,6 +15,7 @@ const mailgun = axios.create({
 async function send({ email, subject, body }) {
   if (!SEND_EMAILS) {
     debug('SEND_EMAILS not set, return')
+    return
   }
 
   const data = {
@@ -27,7 +28,7 @@ async function send({ email, subject, body }) {
   const formData = querystring.stringify(data)
   const res = await mailgun.post('/messages', formData)
 
-  debug('res=%o', res)
+  debug('res.status=%s res.data=%j', res.status, res.data)
 }
 
 exports.send = send

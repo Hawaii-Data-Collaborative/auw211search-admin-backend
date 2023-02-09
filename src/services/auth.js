@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt')
 const dayjs = require('../dayjs')
-const debug = require('debug')('app:services:login')
+const debug = require('debug')('app:services:auth')
 const { prisma } = require('../prisma')
 const emailService = require('./email')
 
@@ -27,7 +27,7 @@ async function login(email, rawPassword, res) {
   const lastLogin = new Date()
   user.lastLogin = lastLogin
   await prisma.user.update({
-    data: { lastLogin: lastLogin.toJSON() },
+    data: { lastLogin: lastLogin.toJSON(), updatedAt: lastLogin.toJSON() },
     where: { id: user.id }
   })
 
@@ -81,7 +81,7 @@ async function getUser(req) {
 
 exports.getUser = getUser
 
-async function resetPassword(email) {
+async function resetPassword(email, action = 'RESET') {
   let user = await prisma.user.findFirst({
     where: { email }
   })
@@ -91,11 +91,12 @@ async function resetPassword(email) {
   }
 
   const passwordResetToken = bcrypt.genSaltSync()
-  const passwordResetExp = dayjs().add(10, 'minutes').toJSON()
+  const passwordResetExp = action === 'CREATE' ? dayjs().add(1, 'year').toJSON() : dayjs().add(10, 'minutes').toJSON()
   user = await prisma.user.update({
     data: {
       passwordResetToken,
-      passwordResetExp
+      passwordResetExp,
+      updatedAt: new Date().toJSON()
     },
     where: {
       id: user.id
@@ -106,10 +107,11 @@ async function resetPassword(email) {
 
   const subject = 'Password Reset'
   // prettier-ignore
-  const url = `${process.env.ORIGIN}/#/reset_password?email=${encodeURIComponent(email)}&token=${encodeURIComponent(passwordResetToken)}`
+  const url = `${process.env.ORIGIN}/#/reset_password?email=${encodeURIComponent(email)}&action=${action.toLowerCase()}&token=${encodeURIComponent(passwordResetToken)}`
+  // prettier-ignore
   const body = `
     <p>Aloha,</p>
-    <p><a href="${url}" target="_blank">Click this link</a> to reset your password.</p>
+    <p><a href="${url}" target="_blank">Click this link</a> to ${ action === 'RESET' ? 'reset your password' : 'activate your account' }.</p>
     <p>Mahalo!</p>
   `
 
