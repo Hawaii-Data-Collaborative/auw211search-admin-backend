@@ -31,6 +31,9 @@ app.use(cookieParser())
 app.post('/api/login', routes.login)
 app.post('/api/logout', routes.logout)
 app.get('/api/session', routes.session)
+app.post('/api/create_reset_password_token', routes.createResetPasswordToken)
+app.post('/api/check_reset_password_token', routes.checkResetPasswordToken)
+app.post('/api/update_password', routes.updatePassword)
 
 // Session middleware
 app.use(sessionMiddleware)

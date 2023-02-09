@@ -10,3 +10,10 @@ test('login()', async () => {
     email: expect.any(String)
   })
 })
+
+test('resetPassword()', async () => {
+  const email = 'kyle@windwardapps.com'
+  const user = await authService.resetPassword(email)
+  expect(user.passwordResetToken).not.toBeNull()
+  expect(user.passwordResetExp).not.toBeNull()
+})
