@@ -1,7 +1,11 @@
+const express = require('express')
 const debug = require('debug')('app:routes:settings')
 const { prisma } = require('../prisma')
+const settingsService = require('../services/settings')
 
-async function getSettings(req, res) {
+const router = express.Router()
+
+router.get('/', async (req, res) => {
   try {
     const settings = await prisma.settings.findUnique({ where: { id: 1 } })
     return res.json(settings)
@@ -9,11 +13,9 @@ async function getSettings(req, res) {
     debug(err)
     res.status(500).json({ message: err.message })
   }
-}
+})
 
-exports.getSettings = getSettings
-
-async function saveSettings(req, res) {
+router.post('/', async (req, res) => {
   try {
     const data = req.body
     const settings = await prisma.settings.update({ where: { id: 1 }, data })
@@ -22,6 +24,26 @@ async function saveSettings(req, res) {
     debug(err)
     res.status(500).json({ message: err.message })
   }
-}
+})
 
-exports.saveSettings = saveSettings
+router.get('/sync_db', async (req, res) => {
+  try {
+    const result = await settingsService.getDBLastSyncDate()
+    return res.json(result)
+  } catch (err) {
+    debug(err)
+    res.status(500).json({ message: err.message })
+  }
+})
+
+router.post('/sync_db', async (req, res) => {
+  try {
+    const result = await settingsService.syncDb()
+    return res.json(result)
+  } catch (err) {
+    debug(err)
+    res.status(500).json({ message: err.message })
+  }
+})
+
+exports.settings = router
