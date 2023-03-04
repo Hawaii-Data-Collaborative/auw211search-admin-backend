@@ -475,7 +475,18 @@ model agency {
   Formal_Update_Date__c               String?
   Days_Since_Last_Update__c           String?
   Days_Since_Last_Formal_Update__c    String?
-  attributes                          String?
+
+  Agency_Accessibility_Other__c             String?
+  Contact_1_Secondary_Phone__c              String?
+  Contact_2_Secondary_Phone__c              String?
+  Contact_3_Secondary_Phone__c              String?
+  How_long_has_Agency_Serviced_in_Hawaii__c String?
+  How_long_has_agency_had_legal_status__c   String?
+  IRS_Status_Other__c                       String?
+  Mailing_Building__c                       String?
+  Mailing_Suite__c                          String?
+
+  attributes String?
 }
 
 model program {
@@ -568,7 +579,55 @@ model program {
   X211_Agency__c                      String?
   Days_Since_Last_Update__c           String?
   Program_Taxonomy_Rollup__c          String?
-  attributes                          String?
+
+  AccessibilityPicklist__c                String?
+  Accessibility_Other__c                  String?
+  Age_Restriction_Other__c                String?
+  Age_Restrictions__c                     String?
+  Business_Hours_Friday__c                String?
+  Business_Hours_Monday__c                String?
+  Business_Hours_Saturday__c              String?
+  Business_Hours_Sunday__c                String?
+  Business_Hours_Thursday__c              String?
+  Business_Hours_Tuesday__c               String?
+  Business_Hours_Wednesday__c             String?
+  Close_Time_Friday__c                    String?
+  Close_Time_Monday__c                    String?
+  Close_Time_Saturday__c                  String?
+  Close_Time_Sunday__c                    String?
+  Close_Time_Thursday__c                  String?
+  Close_Time_Tuesday__c                   String?
+  Close_Time_Wednesday__c                 String?
+  CommunitiesServed__c                    String?
+  Communities_Served_Other__c             String?
+  DocumentsRequiredPicklist__c            String?
+  Documents_Required_Other__c             String?
+  Gender_Restrictions__c                  String?
+  Income_Restrictions_Other__c            String?
+  Income_Restrictions__c                  String?
+  Intake_Procedure_Picklist__c            String?
+  Intake_Procedures_Other__c              String?
+  Languages_Consistently_Available__c     String?
+  Medical_Insurance_Types_Accepted__c     String?
+  Medical_Insurance_required__c           String?
+  Open_247__c                             String?
+  Open_Time_Friday__c                     String?
+  Open_Time_Monday__c                     String?
+  Open_Time_Saturday__c                   String?
+  Open_Time_Sunday__c                     String?
+  Open_Time_Thursday__c                   String?
+  Open_Time_Tuesday__c                    String?
+  Open_Time_Wednesday__c                  String?
+  Program_Special_Notes_Hours__c          String?
+  Race_Restrictions__c                    String?
+  Race_or_Ethnicity_restrictions_other__c String?
+  Site_Address__c                         String?
+  Site_Name__c                            String?
+  Site_Program_Changes__c                 String?
+  Transportation_Description__c           String?
+  Transportation_Services_Offered__c      String?
+
+  attributes String?
 }
 
 model program_service {
@@ -711,7 +770,31 @@ model site {
   X211_Agency__c                      String?
   Mailing_Address__c                  String?
   Street_Address__c                   String?
-  attributes                          String?
+
+  Accessibility_Other__c String?
+  Close_Time_Friday__c   String?
+  Close_Time_Monday__c   String?
+  Close_Time_Saturday__c String?
+  Close_Time_Sunday__c   String?
+
+  Close_Time_Thursday__c  String?
+  Close_Time_Tuesday__c   String?
+  Close_Time_Wednesday__c String?
+  Mailing_Building__c     String?
+  Open_24_7__c            String?
+  Open_Time_Friday__c     String?
+  Open_Time_Monday__c     String?
+  Open_Time_Saturday__c   String?
+  Open_Time_Sunday__c     String?
+  Open_Time_Thursday__c   String?
+  Open_Time_Tuesday__c    String?
+  Open_Time_Wednesday__c  String?
+  Phone_Description__c    String?
+  Site_Description__c     String?
+  Site_Extension__c       String?
+  Special_Hour__c         String?
+
+  attributes String?
 }
 
 model site_program {

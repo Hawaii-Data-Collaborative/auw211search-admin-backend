@@ -19,8 +19,15 @@ async function syncDb() {
   const apiDir = process.env.MAIN_API_PATH
   debug('[syncDb] apiDir=%s', apiDir)
   const cmd = `cd ${apiDir} && ./scripts/copyDataFromSF.sh`
-  const result = await execAsync(cmd)
-  return result.stdout
+  try {
+    const result = await execAsync(cmd)
+    debug('[syncDb] stdout=%s', result.stdout)
+    debug('[syncDb] stderr=%s', result.stderr)
+    return result.stdout
+  } catch (err) {
+    debug('[syncDb] error=%o', err)
+    throw err
+  }
 }
 
 exports.syncDb = syncDb
