@@ -30,7 +30,7 @@ app.use(sessionMiddleware)
 // Auth routes
 app.post('/api/agency', createPrismaHandler('agency'))
 app.post('/api/program', createPrismaHandler('program'))
-app.post('/api/user', createPrismaHandler('user'))
+app.post('/api/user', createPrismaHandler('user', false))
 app.post('/api/user_activity', createPrismaHandler('user_activity'))
 app.get('/api/user_activity_events', routes.userActivityEvents)
 app.get('/api/user_activity_users', routes.userActivityUsers)
