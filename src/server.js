@@ -1,26 +1,15 @@
 require('dotenv').config()
+// eslint-disable-next-line no-unused-vars
 const debug = require('debug')('app:server')
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const { defaultHandler } = require('ra-data-simple-prisma')
-const { prisma } = require('./prisma')
+const { createPrismaHandler } = require('./createPrismaHandler')
 const routes = require('./routes')
-const { updateDateFilter } = require('./util')
 const authService = require('./services/auth')
 
 const app = express()
 const port = process.env.PORT || 3000
-
-const prismaHandler = async (req, res) => {
-  updateDateFilter(req)
-  try {
-    await defaultHandler(req, res, prisma)
-  } catch (err) {
-    debug(err)
-    res.status(500).json({ message: err.message })
-  }
-}
 
 // Core middlewares
 app.use(express.json())
@@ -39,9 +28,10 @@ app.post('/api/update_password', routes.updatePassword)
 app.use(sessionMiddleware)
 
 // Auth routes
-app.post('/api/agency', prismaHandler)
-app.post('/api/program', prismaHandler)
-app.post('/api/user_activity', prismaHandler)
+app.post('/api/agency', createPrismaHandler('agency'))
+app.post('/api/program', createPrismaHandler('program'))
+app.post('/api/user', createPrismaHandler('user'))
+app.post('/api/user_activity', createPrismaHandler('user_activity'))
 app.get('/api/user_activity_events', routes.userActivityEvents)
 app.get('/api/user_activity_users', routes.userActivityUsers)
 app.use('/api/settings', routes.settings)

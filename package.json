@@ -2,7 +2,7 @@
   "name": "auw-admin",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
+  "main": "src/server.js",
   "scripts": {
     "dev": "nodemon --inspect=0.0.0.0:3098 --watch src .",
     "start": "node .",
