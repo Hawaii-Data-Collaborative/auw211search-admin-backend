@@ -5,6 +5,7 @@ async function getPrograms(params) {
   const q = filter.q.trim()
   const where = {
     OR: [
+      { id: { contains: q } },
       { keywords: { contains: q } },
       { OwnerId: { contains: q } },
       { IsDeleted: { contains: q } },
