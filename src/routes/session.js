@@ -4,7 +4,7 @@ const authService = require('../services/auth')
 async function session(req, res) {
   let rv = null
 
-  const user = await authService.getUser(req)
+  const user = await authService.getUser(req, res)
   if (user) {
     debug('got session for user %s', user.id)
     const { id, email, permissions, lastLogin } = user

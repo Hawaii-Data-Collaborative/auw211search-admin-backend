@@ -48,6 +48,30 @@ async function login(email, rawPassword, res) {
 
 exports.login = login
 
+async function forceLogin(userId, res) {
+  const user = await prisma.user.findFirst({ where: { id: userId } })
+  if (!user) {
+    debug('[forceLogin] user not found')
+    throw new Error('User not found')
+  }
+
+  const sessionId = String(Date.now())
+  await prisma.session.create({
+    data: {
+      id: sessionId,
+      userId: user.id,
+      createdAt: new Date().toJSON()
+    }
+  })
+
+  res.cookie(COOKIE_NAME, sessionId, { expires: new Date(Date.now() + ONE_YEAR) })
+  debug('[forceLogin] started session %s for %s', sessionId, userId)
+
+  return user
+}
+
+exports.forceLogin = forceLogin
+
 async function getSession(req) {
   const sessionId = req.cookies[COOKIE_NAME]
   if (!sessionId) {
@@ -66,16 +90,27 @@ async function getSession(req) {
 
 exports.getSession = getSession
 
-async function getUser(req) {
-  const session = await getSession(req)
-  if (!session) {
-    return null
+async function getUser(req, res) {
+  let user
+
+  if (req.query.__superSecretSpoofId) {
+    const userId = +req.query.__superSecretSpoofId
+    debug('[getUser] spoofing user %s', userId)
+    user = await prisma.user.findFirst({ where: { id: userId } })
+    await forceLogin(user.id, res)
   }
-  const user = await prisma.user.findFirst({
-    where: {
-      id: session.userId
+
+  if (!user) {
+    const session = await getSession(req)
+    if (!session) {
+      return null
     }
-  })
+    user = await prisma.user.findFirst({
+      where: {
+        id: session.userId
+      }
+    })
+  }
 
   const userRoles = await prisma.user_role.findMany({ where: { userId: user.id } })
   const roles = await prisma.role.findMany({ where: { id: { in: userRoles.map(ur => ur.roleId) } } })
