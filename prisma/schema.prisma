@@ -960,3 +960,20 @@ model session {
   createdAt String?
   updatedAt String?
 }
+
+model role {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  permissions String?
+  createdAt   String?
+  updatedAt   String?
+}
+
+model user_role {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  roleId    Int
+  createdAt String?
+  updatedAt String?
+}

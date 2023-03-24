@@ -76,6 +76,16 @@ async function getUser(req) {
       id: session.userId
     }
   })
+
+  const userRoles = await prisma.user_role.findMany({ where: { userId: user.id } })
+  const roles = await prisma.role.findMany({ where: { id: { in: userRoles.map(ur => ur.roleId) } } })
+  const perms = []
+  for (const role of roles) {
+    if (role.permissions) {
+      perms.push(...role.permissions.split(';'))
+    }
+  }
+  user.permissions = [...new Set(perms)]
   return user
 }
 

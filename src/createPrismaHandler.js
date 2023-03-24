@@ -19,8 +19,55 @@ function createPrismaHandler(modelName, useDefaultOnError = true) {
         } else if (modelName === 'program' && method === 'update') {
           updateProgramInMeilisearch = true
         } else if (modelName === 'user' && method === 'create') {
-          const user = await userService.create(params.data.email)
+          const user = await userService.create(params.data.email, params.data.roleIds)
           return res.json({ data: user })
+        } else if (modelName === 'user' && method === 'update') {
+          const user = await userService.update(params.data)
+          return res.json({ data: user })
+        } else if (modelName === 'user' && method === 'getList') {
+          const users = await prisma.user.findMany({
+            orderBy: {
+              [params.sort.field]: params.sort.order.toLowerCase()
+            }
+          })
+          await transformUsers(users)
+          const count = await prisma.user.count()
+          return res.json({ data: users, total: count })
+        } else if (modelName === 'user' && method === 'getOne') {
+          const user = await prisma.user.findUnique({ where: params })
+          await transformUsers([user])
+          return res.json({ data: user })
+        } else if (modelName === 'role' && ['create', 'update'].includes(method)) {
+          if (method === 'create') {
+            params.data.createdAt = new Date().toJSON()
+          }
+          params.data.updatedAt = new Date().toJSON()
+          if (Array.isArray(params.data.permissions)) {
+            params.data.permissions = params.data.permissions.join(';')
+          }
+          let role
+          if (method === 'create') {
+            role = await prisma.role.create({ data: params.data })
+          } else {
+            role = await prisma.role.update({ data: params.data, where: { id: params.id } })
+          }
+          transformRole(role)
+          return res.json({ data: role })
+        } else if (modelName === 'role' && method === 'getList') {
+          const roles = await prisma.role.findMany({
+            orderBy: {
+              [params.sort.field]: params.sort.order.toLowerCase()
+            }
+          })
+          for (const r of roles) {
+            transformRole(r)
+          }
+          const count = await prisma.role.count()
+          return res.json({ data: roles, total: count })
+        } else if (modelName === 'role' && method === 'getOne') {
+          const role = await prisma.role.findUnique({ where: params })
+          transformRole(role)
+          return res.json({ data: role })
         }
       } catch (err) {
         debug(err)
@@ -45,3 +92,19 @@ function createPrismaHandler(modelName, useDefaultOnError = true) {
 }
 
 exports.createPrismaHandler = createPrismaHandler
+
+function transformRole(role) {
+  if (role.permissions) {
+    role.permissions = role.permissions.split(';')
+  }
+}
+
+async function transformUsers(users) {
+  const userRoles = await prisma.user_role.findMany()
+  for (const u of users) {
+    delete u.password
+    delete u.passwordResetExp
+    delete u.passwordResetToken
+    u.roleIds = userRoles.filter(ur => ur.userId === u.id).map(ur => ur.roleId)
+  }
+}

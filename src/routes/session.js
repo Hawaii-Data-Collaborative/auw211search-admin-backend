@@ -7,8 +7,8 @@ async function session(req, res) {
   const user = await authService.getUser(req)
   if (user) {
     debug('got session for user %s', user.id)
-    const { id, email, lastLogin } = user
-    rv = { user: { id, email, lastLogin } }
+    const { id, email, permissions, lastLogin } = user
+    rv = { user: { id, email, permissions, lastLogin } }
   } else {
     debug('no session')
     res.status(401)
