@@ -13,61 +13,15 @@ function createPrismaHandler(modelName, useDefaultOnError = true) {
       let updateProgramInMeilisearch = false
       try {
         const { method, params } = req.body || {}
-        if (modelName === 'program' && method === 'getList' && params.filter?.q) {
-          const rv = await programService.getPrograms(params)
-          return res.json(rv)
-        } else if (modelName === 'program' && method === 'update') {
+        if (modelName in overrides && method in overrides[modelName]) {
+          const rv = await overrides[modelName][method](params)
+          if (rv !== undefined) {
+            return res.json(rv)
+          }
+        }
+
+        if (modelName === 'program' && method === 'update') {
           updateProgramInMeilisearch = true
-        } else if (modelName === 'user' && method === 'create') {
-          const user = await userService.create(params.data.email, params.data.roleIds)
-          return res.json({ data: user })
-        } else if (modelName === 'user' && method === 'update') {
-          const user = await userService.update(params.data)
-          return res.json({ data: user })
-        } else if (modelName === 'user' && method === 'getList') {
-          const users = await prisma.user.findMany({
-            orderBy: {
-              [params.sort.field]: params.sort.order.toLowerCase()
-            }
-          })
-          await transformUsers(users)
-          const count = await prisma.user.count()
-          return res.json({ data: users, total: count })
-        } else if (modelName === 'user' && method === 'getOne') {
-          const user = await prisma.user.findUnique({ where: params })
-          await transformUsers([user])
-          return res.json({ data: user })
-        } else if (modelName === 'role' && ['create', 'update'].includes(method)) {
-          if (method === 'create') {
-            params.data.createdAt = new Date().toJSON()
-          }
-          params.data.updatedAt = new Date().toJSON()
-          if (Array.isArray(params.data.permissions)) {
-            params.data.permissions = params.data.permissions.join(';')
-          }
-          let role
-          if (method === 'create') {
-            role = await prisma.role.create({ data: params.data })
-          } else {
-            role = await prisma.role.update({ data: params.data, where: { id: params.id } })
-          }
-          transformRole(role)
-          return res.json({ data: role })
-        } else if (modelName === 'role' && method === 'getList') {
-          const roles = await prisma.role.findMany({
-            orderBy: {
-              [params.sort.field]: params.sort.order.toLowerCase()
-            }
-          })
-          for (const r of roles) {
-            transformRole(r)
-          }
-          const count = await prisma.role.count()
-          return res.json({ data: roles, total: count })
-        } else if (modelName === 'role' && method === 'getOne') {
-          const role = await prisma.role.findUnique({ where: params })
-          transformRole(role)
-          return res.json({ data: role })
         }
       } catch (err) {
         debug(err)
@@ -92,6 +46,80 @@ function createPrismaHandler(modelName, useDefaultOnError = true) {
 }
 
 exports.createPrismaHandler = createPrismaHandler
+
+const overrides = {
+  program: {
+    getList: async params => {
+      if (!params.filter?.q) {
+        return
+      }
+      return programService.getPrograms(params)
+    }
+  },
+  user: {
+    getList: async params => {
+      const users = await prisma.user.findMany({
+        orderBy: {
+          [params.sort.field]: params.sort.order.toLowerCase()
+        }
+      })
+      await transformUsers(users)
+      const count = await prisma.user.count()
+      return { data: users, total: count }
+    },
+    getOne: async params => {
+      const user = await prisma.user.findUnique({ where: params })
+      await transformUsers([user])
+      return { data: user }
+    },
+    create: async params => {
+      const user = await userService.create(params.data.email, params.data.roleIds)
+      return { data: user }
+    },
+    update: async params => {
+      const user = await userService.update(params.data)
+      return { data: user }
+    }
+  },
+  role: {
+    create: async params => {
+      params.data.createdAt = new Date().toJSON()
+      params.data.updatedAt = new Date().toJSON()
+      if (Array.isArray(params.data.permissions)) {
+        params.data.permissions = params.data.permissions.join(';')
+      }
+      const role = await prisma.role.create({ data: params.data })
+      transformRole(role)
+      return { data: role }
+    },
+    update: async params => {
+      params.data.updatedAt = new Date().toJSON()
+      if (Array.isArray(params.data.permissions)) {
+        params.data.permissions = params.data.permissions.join(';')
+      }
+      const role = await prisma.role.update({ data: params.data, where: { id: params.id } })
+      transformRole(role)
+      return { data: role }
+    },
+    getList: async params => {
+      const roles = await prisma.role.findMany({
+        orderBy: {
+          [params.sort.field]: params.sort.order.toLowerCase()
+        }
+      })
+      for (const r of roles) {
+        transformRole(r)
+      }
+      const count = await prisma.role.count()
+      return { data: roles, total: count }
+    },
+    getOne: async params => {
+      const role = await prisma.role.findUnique({ where: params })
+      transformRole(role)
+      return { data: role }
+    }
+  }
+}
 
 function transformRole(role) {
   if (role.permissions) {
