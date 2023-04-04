@@ -90,27 +90,16 @@ async function getSession(req) {
 
 exports.getSession = getSession
 
-async function getUser(req, res) {
-  let user
-
-  if (req.query.__superSecretSpoofId) {
-    const userId = +req.query.__superSecretSpoofId
-    debug('[getUser] spoofing user %s', userId)
-    user = await prisma.user.findFirst({ where: { id: userId } })
-    await forceLogin(user.id, res)
+async function getUser(req) {
+  const session = await getSession(req)
+  if (!session) {
+    return null
   }
-
-  if (!user) {
-    const session = await getSession(req)
-    if (!session) {
-      return null
+  const user = await prisma.user.findFirst({
+    where: {
+      id: session.userId
     }
-    user = await prisma.user.findFirst({
-      where: {
-        id: session.userId
-      }
-    })
-  }
+  })
 
   const userRoles = await prisma.user_role.findMany({ where: { userId: user.id } })
   const roles = await prisma.role.findMany({ where: { id: { in: userRoles.map(ur => ur.roleId) } } })
