@@ -96,6 +96,8 @@ async function getRelatedNeedsChart({ start, end } = {}) {
     end = dayjs().tz(TZ).endOf('day').toJSON()
   }
 
+  const MIN_SEARCH_COUNT_PER_NODE = 5
+
   const uaList = await prisma.user_activity.findMany({
     where: {
       event: 'Search.Keyword',
@@ -152,7 +154,14 @@ async function getRelatedNeedsChart({ start, end } = {}) {
     }
   }
 
-  return { nodes, links }
+  const filteredNodes = nodes.filter(n => n.value >= MIN_SEARCH_COUNT_PER_NODE)
+  const filteredNodeNames = new Set(filteredNodes.map(n => n.id))
+  const filteredLinks = links.filter(l => filteredNodeNames.has(l.source) && filteredNodeNames.has(l.target))
+
+  return {
+    nodes: filteredNodes,
+    links: filteredLinks
+  }
 }
 
 exports.getRelatedNeedsChart = getRelatedNeedsChart
