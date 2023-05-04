@@ -928,6 +928,8 @@ model settings {
   trendingMaxShow        Int
   manualTrends           Boolean?
   trends                 String?
+  bannerText             String?
+  bannerLink             String?
   createdAt              String
 }
 
