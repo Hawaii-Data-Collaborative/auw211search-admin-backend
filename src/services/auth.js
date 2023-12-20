@@ -4,10 +4,27 @@ const debug = require('debug')('app:services:auth')
 const { prisma } = require('../prisma')
 const emailService = require('./email')
 
+const PROD = process.env.NODE_ENV === 'production'
 const COOKIE_NAME = 'AuwSession'
 exports.COOKIE_NAME = COOKIE_NAME
 
 const ONE_YEAR = 1000 * 60 * 60 * 24 * 365
+
+function startSession(res, sessionId) {
+  const options = { expires: new Date(Date.now() + ONE_YEAR) }
+  if (PROD) {
+    options.path = '/admin'
+  }
+  res.cookie(COOKIE_NAME, sessionId, options)
+}
+
+function endSession(res) {
+  const options = { expires: new Date('2000-01-01T00:00:00.000Z') }
+  if (PROD) {
+    options.path = '/admin'
+  }
+  res.cookie(COOKIE_NAME, '', options)
+}
 
 async function login(email, rawPassword, res) {
   debug('[login] attempt for %s', email)
@@ -40,7 +57,7 @@ async function login(email, rawPassword, res) {
     }
   })
 
-  res.cookie(COOKIE_NAME, sessionId, { expires: new Date(Date.now() + ONE_YEAR) })
+  startSession(res, sessionId)
   debug('[login] started session %s for %s', sessionId, email)
 
   return user
@@ -64,13 +81,20 @@ async function forceLogin(userId, res) {
     }
   })
 
-  res.cookie(COOKIE_NAME, sessionId, { expires: new Date(Date.now() + ONE_YEAR) })
+  startSession(res, sessionId)
   debug('[forceLogin] started session %s for %s', sessionId, userId)
 
   return user
 }
 
 exports.forceLogin = forceLogin
+
+async function logout(sessionId, res) {
+  await prisma.session.delete({ where: { id: sessionId } })
+  endSession(res)
+}
+
+exports.logout = logout
 
 async function getSession(req) {
   const sessionId = req.cookies[COOKIE_NAME]
@@ -207,8 +231,7 @@ async function changePassword(email, rawPassword, res) {
     }
   })
 
-  res.cookie(COOKIE_NAME, sessionId, { expires: new Date(Date.now() + ONE_YEAR) })
-
+  startSession(res, sessionId)
   debug('[changePassword] updated password for user %s', user.id)
   return user
 }

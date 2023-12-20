@@ -1,16 +1,13 @@
 const debug = require('debug')('app:routes:logout')
-const { prisma } = require('../prisma')
-const { COOKIE_NAME } = require('../services/auth')
+const authService = require('../services/auth')
 
 async function logout(req, res) {
   try {
-    const sessionId = req.cookies[COOKIE_NAME]
+    const sessionId = req.cookies[authService.COOKIE_NAME]
     if (!sessionId) {
       return res.json()
     }
-
-    res.clearCookie(COOKIE_NAME)
-    await prisma.session.delete({ where: { id: sessionId } })
+    await authService.logout(sessionId, res)
     debug('[logout] ended session %s', sessionId)
     return res.json()
   } catch (err) {
