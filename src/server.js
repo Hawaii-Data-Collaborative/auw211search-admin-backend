@@ -59,7 +59,8 @@ app.use((req, res, next) => {
     if (isFileLike === false) {
       return res.sendFile(path.resolve('../searchengine-admin-frontend/build/index.html'), {
         cacheControl: false,
-        lastModified: false
+        lastModified: false,
+        etag: false
       })
     }
   }
