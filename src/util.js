@@ -32,3 +32,28 @@ function updateDateFilter(req) {
 }
 
 exports.updateDateFilter = updateDateFilter
+
+function getRandomString(len) {
+  let result = ''
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let i = 0
+  while (i < len) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length))
+    i += 1
+  }
+  return result
+}
+
+exports.getRandomString = getRandomString
+
+function encodeObject(o) {
+  return Buffer.from(JSON.stringify(o)).toString('base64')
+}
+
+exports.encodeObject = encodeObject
+
+function decodeObject(str) {
+  return JSON.parse(Buffer.from(str, 'base64').toString())
+}
+
+exports.decodeObject = decodeObject

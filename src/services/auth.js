@@ -3,6 +3,7 @@ const dayjs = require('../dayjs')
 const debug = require('debug')('app:services:auth')
 const { prisma } = require('../prisma')
 const emailService = require('./email')
+const { getRandomString } = require('../util')
 
 const PROD = process.env.NODE_ENV === 'production'
 const COOKIE_NAME = 'AuwSession'
@@ -48,7 +49,7 @@ async function login(email, rawPassword, res) {
     where: { id: user.id }
   })
 
-  const sessionId = String(Date.now())
+  const sessionId = getRandomString(30)
   await prisma.session.create({
     data: {
       id: sessionId,
@@ -72,7 +73,7 @@ async function forceLogin(userId, res) {
     throw new Error('User not found')
   }
 
-  const sessionId = String(Date.now())
+  const sessionId = getRandomString(30)
   await prisma.session.create({
     data: {
       id: sessionId,
@@ -222,7 +223,7 @@ async function changePassword(email, rawPassword, res) {
     }
   })
 
-  const sessionId = String(Date.now())
+  const sessionId = getRandomString(30)
   await prisma.session.create({
     data: {
       id: sessionId,
