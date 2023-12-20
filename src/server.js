@@ -17,7 +17,14 @@ const BASE_URL = PROD ? '/admin/api' : '/api'
 
 app.use(morgan('combined'))
 if (PROD) {
-  app.use('/admin/static', express.static('../searchengine-admin-frontend/build/static'))
+  app.use(
+    '/admin/static',
+    express.static('../searchengine-admin-frontend/build/static', {
+      cacheControl: false,
+      lastModified: false,
+      etag: false
+    })
+  )
 } else {
   app.use(cors({ origin: 'http://localhost:3097', credentials: true }))
 }
