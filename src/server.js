@@ -15,7 +15,7 @@ const PROD = process.env.NODE_ENV === 'production'
 const BASE_URL = PROD ? '/admin/api' : '/api'
 
 if (PROD) {
-  app.use('/admin/static', express.static('../searchengine-admin-frontend/build'))
+  app.use('/admin/static', express.static('../searchengine-admin-frontend/build/static'))
 } else {
   app.use(cors({ origin: 'http://localhost:3097', credentials: true }))
 }
