@@ -22,6 +22,7 @@
     "express": "^4.18.2",
     "lodash": "^4.17.21",
     "meilisearch": "^0.30.0",
+    "morgan": "^1.10.0",
     "prisma": "4.6.1",
     "ra-data-simple-prisma": "^2.0.2",
     "sqlite3": "^5.1.4"

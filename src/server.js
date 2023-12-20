@@ -5,6 +5,7 @@ const debug = require('debug')('app:server')
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
+const morgan = require('morgan')
 const { createPrismaHandler } = require('./createPrismaHandler')
 const routes = require('./routes')
 const authService = require('./services/auth')
@@ -14,6 +15,7 @@ const port = process.env.PORT || 3000
 const PROD = process.env.NODE_ENV === 'production'
 const BASE_URL = PROD ? '/admin/api' : '/api'
 
+app.use(morgan('combined'))
 if (PROD) {
   app.use('/admin/static', express.static('../searchengine-admin-frontend/build/static'))
 } else {
