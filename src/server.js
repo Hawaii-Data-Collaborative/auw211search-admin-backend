@@ -44,11 +44,13 @@ app.use(BASE_URL + '/trends', [sessionMiddleware], routes.trends)
 app.use(BASE_URL + '/categories', [sessionMiddleware], routes.categories)
 app.use(BASE_URL + '/users', [sessionMiddleware], routes.users)
 
+const fileSuffixes = ['js', 'css', 'map', 'txt', 'jpg', 'jpeg', 'png', 'svg']
+
 app.use((req, res, next) => {
   if (PROD) {
     let isFileLike
     try {
-      isFileLike = req.path.split('/').pop().split('.').length === 2
+      isFileLike = fileSuffixes.includes(req.path.split('/').pop().split('.').pop())
     } catch {
       // no op
     }
