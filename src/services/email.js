@@ -1,34 +1,33 @@
 const debug = require('debug')('app:email')
-const axios = require('axios')
-const querystring = require('querystring')
+const nodemailer = require('nodemailer')
 
-const { EMAIL_API_URL, EMAIL_API_KEY, SEND_EMAILS } = process.env
+const { SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_FROM, SEND_EMAILS } = process.env
 
-const mailgun = axios.create({
-  baseURL: EMAIL_API_URL,
+const transporter = nodemailer.createTransport({
+  host: SMTP_HOST,
+  secure: true,
   auth: {
-    username: 'api',
-    password: EMAIL_API_KEY
+    user: SMTP_USER,
+    pass: SMTP_PASS
   }
 })
 
-async function send({ email, subject, body }) {
+async function send({ to, subject, text, html }) {
   if (!SEND_EMAILS) {
     debug('SEND_EMAILS not set, return')
     return
   }
 
-  const data = {
-    from: 'AUW Admin <noreply@windwardapps.com>',
-    to: email,
+  const result = await transporter.sendMail({
+    from: SMTP_FROM,
+    to,
     subject,
-    html: body
-  }
+    text,
+    html
+  })
 
-  const formData = querystring.stringify(data)
-  const res = await mailgun.post('/messages', formData)
-
-  debug('res.status=%s res.data=%j', res.status, res.data)
+  debug('[send]: result=%j', result)
+  return result
 }
 
 exports.send = send

@@ -168,13 +168,13 @@ async function resetPassword(email, action = 'RESET') {
   // prettier-ignore
   const url = `${process.env.ORIGIN}/#/reset_password?email=${encodeURIComponent(email)}&action=${action.toLowerCase()}&token=${encodeURIComponent(passwordResetToken)}`
   // prettier-ignore
-  const body = `
+  const html = `
     <p>Aloha,</p>
     <p><a href="${url}" target="_blank">Click this link</a> to ${ action === 'RESET' ? 'reset your password' : 'activate your account' }.</p>
     <p>Mahalo!</p>
   `
 
-  await emailService.send({ email: user.email, subject, body })
+  await emailService.send({ to: user.email, subject, html })
   return user
 }
 
