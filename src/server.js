@@ -1,4 +1,5 @@
 require('dotenv').config()
+const path = require('path')
 // eslint-disable-next-line no-unused-vars
 const debug = require('debug')('app:server')
 const express = require('express')
@@ -10,36 +11,53 @@ const authService = require('./services/auth')
 
 const app = express()
 const port = process.env.PORT || 3000
+const PROD = process.env.NODE_ENV === 'production'
+const BASE_URL = PROD ? '/admin/api' : '/api'
 
-// Core middlewares
+if (PROD) {
+  app.use(BASE_URL, express.static('../searchengine-admin-frontend/build'))
+} else {
+  app.use(cors({ origin: 'http://localhost:3097', credentials: true }))
+}
 app.use(express.json())
-app.use(cors({ origin: 'http://localhost:3097', credentials: true }))
 app.use(cookieParser())
 
 // Anon routes
-app.post('/api/login', routes.login)
-app.post('/api/logout', routes.logout)
-app.get('/api/session', routes.session)
-app.post('/api/create_reset_password_token', routes.createResetPasswordToken)
-app.post('/api/check_reset_password_token', routes.checkResetPasswordToken)
-app.post('/api/update_password', routes.updatePassword)
-
-// Session middleware
-app.use(sessionMiddleware)
+app.post(BASE_URL + '/login', routes.login)
+app.post(BASE_URL + '/logout', routes.logout)
+app.get(BASE_URL + '/session', routes.session)
+app.post(BASE_URL + '/create_reset_password_token', routes.createResetPasswordToken)
+app.post(BASE_URL + '/check_reset_password_token', routes.checkResetPasswordToken)
+app.post(BASE_URL + '/update_password', routes.updatePassword)
 
 // Auth routes
-app.post('/api/agency', createPrismaHandler('agency'))
-app.post('/api/program', createPrismaHandler('program'))
-app.post('/api/user', createPrismaHandler('user', false))
-app.post('/api/user_activity', createPrismaHandler('user_activity'))
-app.post('/api/role', createPrismaHandler('role'))
-app.get('/api/user_activity_events', routes.userActivityEvents)
-app.get('/api/user_activity_users', routes.userActivityUsers)
-app.use('/api/settings', routes.settings)
-app.use('/api/chart', routes.chart)
-app.use('/api/trends', routes.trends)
-app.use('/api/categories', routes.categories)
-app.use('/api/users', routes.users)
+app.post(BASE_URL + '/agency', [sessionMiddleware], createPrismaHandler('agency'))
+app.post(BASE_URL + '/program', [sessionMiddleware], createPrismaHandler('program'))
+app.post(BASE_URL + '/user', [sessionMiddleware], createPrismaHandler('user', false))
+app.post(BASE_URL + '/user_activity', [sessionMiddleware], createPrismaHandler('user_activity'))
+app.post(BASE_URL + '/role', [sessionMiddleware], createPrismaHandler('role'))
+app.get(BASE_URL + '/user_activity_events', [sessionMiddleware], routes.userActivityEvents)
+app.get(BASE_URL + '/user_activity_users', [sessionMiddleware], routes.userActivityUsers)
+app.use(BASE_URL + '/settings', [sessionMiddleware], routes.settings)
+app.use(BASE_URL + '/chart', [sessionMiddleware], routes.chart)
+app.use(BASE_URL + '/trends', [sessionMiddleware], routes.trends)
+app.use(BASE_URL + '/categories', [sessionMiddleware], routes.categories)
+app.use(BASE_URL + '/users', [sessionMiddleware], routes.users)
+
+app.use((req, res, next) => {
+  if (PROD) {
+    let isFileLike
+    try {
+      isFileLike = req.path.split('/').pop().split('.').length === 2
+    } catch {
+      // no op
+    }
+    if (isFileLike === false) {
+      return res.sendFile(path.resolve('../searchengine-admin-frontend/build/index.html'))
+    }
+  }
+  next()
+})
 
 app.listen(port, () => {
   console.log(`App server listening on port ${port}`)
