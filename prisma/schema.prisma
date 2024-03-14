@@ -486,6 +486,15 @@ model agency {
   Mailing_Building__c                       String?
   Mailing_Suite__c                          String?
 
+  Any_Disaster_Preparedness_Services__c      String?
+  Describe_Disaster_Preparedness_Services__c String?
+  Mailing_Address_Same_as_Physical__c        String?
+
+  Partner_Agency__c                      String?
+  Partners_In_Care_PIC_Partner_Agency__c String?
+
+  Internal_Updates_Only__c String?
+
   attributes String?
 }
 
@@ -627,6 +636,12 @@ model program {
   Transportation_Description__c           String?
   Transportation_Services_Offered__c      String?
 
+  Do_you_accept_collect_calls__c  String?
+  Phone_Description__c            String?
+  Phone_Extension__c              String?
+  Transpose_Completed__c          String?
+  Intake_Procedure_Multiselect__c String?
+
   Emergency_Reference__c String?
 
   Maximum_Age__c String?
@@ -636,26 +651,16 @@ model program {
 }
 
 model program_service {
-  id                           String  @id
-  IsDeleted                    String?
-  Name                         String?
-  CreatedDate                  String?
-  CreatedById                  String?
-  LastModifiedDate             String?
-  LastModifiedById             String?
-  SystemModstamp               String?
-  LastActivityDate             String?
-  LastViewedDate               String?
-  LastReferencedDate           String?
-  Program__c                   String?
-  Program_Name__c              String?
-  Taxonomy__c                  String?
-  Program_Service_Unique_ID__c String?
-  AIRS_Term__c                 String?
-  Target_Taxonomy_1__c         String?
-  Target_Taxonomy_2__c         String?
-  Create_Multiple__c           String?
-  attributes                   String?
+  id               String  @id
+  Program__c       String
+  Taxonomy__c      String
+  Name             String
+  IsDeleted        Boolean
+  CreatedDate      String
+  CreatedById      String
+  LastModifiedDate String
+  LastModifiedById String
+  SystemModstamp   String
 }
 
 model site {
@@ -799,6 +804,8 @@ model site {
   Site_Extension__c       String?
   Special_Hour__c         String?
 
+  Mailing_Address_Same_as_Physical__c String?
+
   attributes String?
 }
 
@@ -869,7 +876,7 @@ model taxonomy {
   id                                       String  @id
   OwnerId                                  String?
   IsDeleted                                String?
-  Name                                     String?
+  Name                                     String
   CreatedDate                              String?
   CreatedById                              String?
   LastModifiedDate                         String?
@@ -879,7 +886,7 @@ model taxonomy {
   LastViewedDate                           String?
   LastReferencedDate                       String?
   AIRS_Problem_Need__c                     String?
-  Code__c                                  String?
+  Code__c                                  String
   Definition__c                            String?
   Status__c                                String?
   Term_for_Contact_and_Resources_Module__c String?
