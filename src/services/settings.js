@@ -26,10 +26,15 @@ async function syncDb() {
     return result.stdout
   } catch (err) {
     debug('[syncDb] error=%o', err)
-    setTimeout(() => {
-      debug('[syncDb] restarting app')
-      const cmd = `cd ${apiDir} && ./restart.sh`
-      exec(cmd)
+    setTimeout(async () => {
+      try {
+        debug('[syncDb] restarting app')
+        const cmd = `cd ${apiDir} && sudo ./restart.sh`
+        await execAsync(cmd)
+        debug('[syncDb] success')
+      } catch (err) {
+        debug('[syncDb] %o', err)
+      }
     }, 500)
     throw err
   }
