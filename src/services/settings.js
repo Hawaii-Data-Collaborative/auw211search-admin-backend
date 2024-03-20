@@ -29,7 +29,7 @@ async function syncDb() {
     setTimeout(async () => {
       try {
         debug('[syncDb] restarting app')
-        const cmd = `cd ${apiDir} && sudo ./restart.sh`
+        const cmd = `cd ${process.cwd()} && sudo ./restart.sh`
         await execAsync(cmd)
         debug('[syncDb] success')
       } catch (err) {
