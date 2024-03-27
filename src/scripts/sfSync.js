@@ -53,7 +53,7 @@ async function sendData(data) {
 
   fs.writeFileSync(
     './sfSync.json',
-    JSON.stringify({ object: 'Account', contentType: 'CSV', operation: 'insert', lineEnding: 'LF' }),
+    JSON.stringify({ object: 'WebUserActivity__c', contentType: 'CSV', operation: 'insert', lineEnding: 'LF' }),
     'utf-8'
   )
 
