@@ -1,7 +1,9 @@
 require('dotenv').config()
 
 const fs = require('fs')
+const { execSync } = require('child_process')
 const querystring = require('querystring')
+const converter = require('json-2-csv')
 const { prisma } = require('../prisma')
 
 const { SF_CONSUMER_KEY, SF_CONSUMER_SECRET } = process.env
@@ -48,25 +50,33 @@ exports.getToken = getToken
 
 async function sendData(data) {
   console.log('[sendData] data.length=%s', data.length)
+
+  fs.writeFileSync(
+    './sfSync.json',
+    JSON.stringify({ object: 'Account', contentType: 'CSV', operation: 'insert', lineEnding: 'LF' }),
+    'utf-8'
+  )
+
+  let csv = converter.json2csv(data, { keys: ['createdAt', 'id', 'userId', 'event', 'data'] })
+  const lines = csv.split('\n')
+  lines[0] = 'CreatedAt__c,Eid__c,UserId__c,Name,Data__c'
+  csv = lines.join('\n')
+  fs.writeFileSync('./sfSync.csv', csv, 'utf-8')
+
   const tokenInfo = await getToken()
   const token = tokenInfo.access_token
-  const results = []
-  for (const ua of data) {
-    const res = await fetch(BASE_URL + '/services/data/v60.0/sobjects/WebUserActivity__c', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        Eid__c: ua.id,
-        UserId__c: ua.userId,
-        Name: ua.event,
-        Data__c: ua.data
-      })
-    })
-    const result = await res.json()
-    console.log('[sendData] ua.id=%s res.status=%s', ua.id, res.status)
-    results.push(result)
-  }
-  return results
+
+  const cmd1 = `curl ${BASE_URL}/services/data/v60.0/jobs/ingest/ -H 'Authorization: Bearer ${token}' -H "Content-Type: application/json" -H "Accept: application/json" -H "X-PrettyPrint:1" -d @sfSync.json -X POST`
+  const result1 = execSync(cmd1)
+  console.log('[sendData] result1=%s', result1)
+  const tmp = JSON.parse(result1)
+  const jobId = tmp.id
+  const cmd2 = `curl ${BASE_URL}/services/data/v60.0/jobs/ingest/${jobId}/batches/ -H 'Authorization: Bearer ${token}' -H "Content-Type: text/csv" -H "Accept: application/json" -H "X-PrettyPrint:1" --data-binary @sfSync.csv -X PUT`
+  const result2 = execSync(cmd2)
+  console.log('[sendData] result2=%s', result2)
+  const cmd3 = `curl ${BASE_URL}/services/data/v60.0/jobs/ingest/${jobId}/ -H 'Authorization: Bearer ${token}' -H "Content-Type: application/json; charset=UTF-8" -H "Accept: application/json" -H "X-PrettyPrint:1" --data-raw '{ "state" : "UploadComplete" }' -X PATCH`
+  const result3 = execSync(cmd3)
+  console.log('[sendData] result3=%s', result3)
 }
 
 async function deleteData() {
@@ -86,7 +96,7 @@ async function deleteData() {
       headers: { Authorization: `Bearer ${token}` }
     })
     const result = await res.text()
-    console.log('[sendData] obj.Id=%s res.status=%s', obj.Id, res.status)
+    console.log('[deleteData] obj.Id=%s res.status=%s', obj.Id, res.status)
     results.push(result)
   }
 
