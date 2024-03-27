@@ -69,6 +69,32 @@ async function sendData(data) {
   return results
 }
 
+async function deleteData() {
+  const tokenInfo = await getToken()
+  const token = tokenInfo.access_token
+  const results = []
+
+  const q = querystring.stringify({ q: 'select Id from WebUserActivity__c' })
+  const res = await fetch(`${BASE_URL}/services/data/v60.0/query?${q}`, {
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+  })
+  const data = await res.json()
+
+  for (const obj of data.records) {
+    const res = await fetch(`${BASE_URL}/services/data/v60.0/sobjects/WebUserActivity__c/${obj.Id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    const result = await res.text()
+    console.log('[sendData] obj.Id=%s res.status=%s', obj.Id, res.status)
+    results.push(result)
+  }
+
+  return results
+}
+
+exports.deleteData = deleteData
+
 async function sfSync() {
   console.log('[sfSync] start')
   const data = await getData()
@@ -81,5 +107,9 @@ async function sfSync() {
 exports.sfSync = sfSync
 
 if (require.main === module) {
-  sfSync()
+  if (process.argv.includes('--deleteData')) {
+    deleteData()
+  } else {
+    sfSync()
+  }
 }

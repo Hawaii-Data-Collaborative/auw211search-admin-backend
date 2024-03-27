@@ -7,7 +7,8 @@
     "dev": "nodemon --inspect=0.0.0.0:3098 --watch src .",
     "start": "node .",
     "addUser": "node src/scripts/addUser.js",
-    "sfSync": "node src/scripts/sfSync.js"
+    "sfSync": "node src/scripts/sfSync.js",
+    "deleteData": "node src/scripts/sfSync.js --deleteData"
   },
   "author": "",
   "license": "ISC",
@@ -21,6 +22,7 @@
     "debug": "^4.3.4",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "json-2-csv": "^5.5.1",
     "lodash": "^4.17.21",
     "meilisearch": "^0.30.0",
     "morgan": "^1.10.0",

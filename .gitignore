@@ -3,3 +3,5 @@ node_modules
 auth.json
 *.pyc
 info.json
+sfSync.csv
+sfSync.json
