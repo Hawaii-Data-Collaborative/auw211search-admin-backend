@@ -28,6 +28,16 @@ async function getData() {
   }
 
   const data = await prisma.user_activity.findMany(args)
+  for (const ua of data) {
+    let json
+    try {
+      json = JSON.parse(ua.data)
+    } catch {
+      // no op
+    }
+    ua.dataTerms = json?.terms ?? null
+    ua.dataZip = json?.zip ?? null
+  }
   return data
 }
 
@@ -57,9 +67,9 @@ async function sendData(data) {
     'utf-8'
   )
 
-  let csv = converter.json2csv(data, { keys: ['createdAt', 'id', 'userId', 'event', 'data'] })
+  let csv = converter.json2csv(data, { keys: ['createdAt', 'id', 'userId', 'event', 'data', 'dataTerms', 'dataZip'] })
   const lines = csv.split('\n')
-  lines[0] = 'CreatedAt__c,Eid__c,UserId__c,Name,Data__c'
+  lines[0] = 'CreatedAt__c,Eid__c,UserId__c,Name,Data__c,Data_Terms__c,Data_Zip__c'
   csv = lines.join('\n')
   fs.writeFileSync('./sfSync.csv', csv, 'utf-8')
 
