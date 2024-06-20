@@ -99,6 +99,7 @@ async function deleteData() {
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
   })
   const data = await res.json()
+  console.log('[deleteData] data.records.length=%s', data.records.length)
 
   for (const obj of data.records) {
     const res = await fetch(`${BASE_URL}/services/data/v60.0/sobjects/WebUserActivity__c/${obj.Id}`, {
