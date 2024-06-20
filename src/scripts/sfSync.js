@@ -35,8 +35,8 @@ async function getData() {
     } catch {
       // no op
     }
-    ua.dataTerms = json?.terms ?? null
-    ua.dataZip = json?.zip ?? null
+    ua.dataTerms = json?.terms ?? ''
+    ua.dataZip = json?.zip ?? ''
   }
   return data
 }
