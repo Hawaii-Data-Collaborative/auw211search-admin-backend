@@ -36,7 +36,7 @@ async function getData() {
       // no op
     }
     ua.dataTerms = json?.terms ?? ''
-    ua.dataZip = json?.zip ?? ''
+    ua.dataZip = json?.zip?.length === 5 ? json.zip : ''
   }
   return data
 }
