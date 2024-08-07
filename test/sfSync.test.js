@@ -1,4 +1,4 @@
-const { sfSync, getToken, deleteData } = require('../src/scripts/sfSync')
+const { sfSync, getToken, deleteData, getData } = require('../src/scripts/sfSync')
 
 test('getToken', async () => {
   const rv = await getToken()
@@ -7,6 +7,11 @@ test('getToken', async () => {
 
 test('sfSync', async () => {
   const rv = await sfSync()
+  expect(rv).not.toBeNull()
+})
+
+test('getData', async () => {
+  const rv = await getData()
   expect(rv).not.toBeNull()
 })
 

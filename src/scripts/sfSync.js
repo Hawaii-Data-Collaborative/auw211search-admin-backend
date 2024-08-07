@@ -5,6 +5,7 @@ const { execSync } = require('child_process')
 const querystring = require('querystring')
 const converter = require('json-2-csv')
 const { prisma } = require('../prisma')
+const zipData = require('../../zips.json')
 
 const { SF_CONSUMER_KEY, SF_CONSUMER_SECRET } = process.env
 
@@ -18,6 +19,11 @@ const INFO_FILE = './info.json'
 let info = {}
 if (fs.existsSync(INFO_FILE)) {
   info = JSON.parse(fs.readFileSync(INFO_FILE, 'utf-8'))
+}
+
+const zipcodeMap = {}
+for (const d of zipData) {
+  zipcodeMap[d.zip] = d.county.replace(' County', '')
 }
 
 async function getData() {
@@ -38,10 +44,12 @@ async function getData() {
     ua.dataTerms = json?.terms ?? ''
     ua.dataZip = json?.zip ?? ''
     ua.dataProgram = json?.program ?? ''
-    ua.county = json?.county ?? ''
+    ua.county = zipcodeMap[ua.dataZip] ?? ''
   }
   return data
 }
+
+exports.getData = getData
 
 async function getToken() {
   const body = querystring.stringify({
