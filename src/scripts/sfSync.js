@@ -36,7 +36,9 @@ async function getData() {
       // no op
     }
     ua.dataTerms = json?.terms ?? ''
-    ua.dataZip = json?.zip?.length === 5 ? json.zip : ''
+    ua.dataZip = json?.zip ?? ''
+    ua.dataProgram = json?.program ?? ''
+    ua.county = json?.county ?? ''
   }
   return data
 }
@@ -67,9 +69,11 @@ async function sendData(data) {
     'utf-8'
   )
 
-  let csv = converter.json2csv(data, { keys: ['createdAt', 'id', 'userId', 'event', 'data', 'dataTerms', 'dataZip'] })
+  let csv = converter.json2csv(data, {
+    keys: ['createdAt', 'id', 'userId', 'event', 'data', 'dataTerms', 'dataZip', 'dataProgram', 'county']
+  })
   const lines = csv.split('\n')
-  lines[0] = 'CreatedAt__c,Eid__c,UserId__c,Name,Data__c,Data_Terms__c,Data_Zip__c'
+  lines[0] = 'CreatedAt__c,Eid__c,UserId__c,Name,Data__c,Data_Terms__c,Data_Zip__c,Data_Program__c,County__c'
   csv = lines.join('\n')
   fs.writeFileSync('./sfSync.csv', csv, 'utf-8')
 
