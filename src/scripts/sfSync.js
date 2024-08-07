@@ -42,7 +42,7 @@ async function getData() {
       // no op
     }
     ua.dataTerms = json?.terms ?? ''
-    ua.dataZip = json?.zip ?? ''
+    ua.dataZip = json?.zip || json?.zipCode || ''
     ua.dataProgram = json?.program ?? ''
     ua.county = zipcodeMap[ua.dataZip] ?? ''
   }
