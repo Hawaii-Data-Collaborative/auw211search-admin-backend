@@ -1,4 +1,4 @@
-const { sfSync, getToken, deleteData, getData } = require('../src/scripts/sfSync')
+const { sfSync, getToken, deleteData, getData, writeCsvFile, jsonToCsv } = require('../src/scripts/sfSync')
 
 test('getToken', async () => {
   const rv = await getToken()
@@ -11,8 +11,11 @@ test('sfSync', async () => {
 })
 
 test('getData', async () => {
-  const rv = await getData()
-  expect(rv).not.toBeNull()
+  const json = await getData()
+  expect(json).not.toBeNull()
+  const csv = jsonToCsv(json)
+  const rv = writeCsvFile(csv)
+  expect(rv).toBe(true)
 })
 
 test('deleteData', async () => {

@@ -46,6 +46,9 @@ async function getData() {
     ua.dataProgram = json?.program ?? ''
     ua.county = zipcodeMap[ua.dataZip] ?? ''
   }
+
+  console.log('[getData] data.length=%s', data.length)
+
   return data
 }
 
@@ -68,22 +71,31 @@ async function getToken() {
 
 exports.getToken = getToken
 
-async function sendData(data) {
-  console.log('[sendData] data.length=%s', data.length)
-
-  fs.writeFileSync(
-    './sfSync.json',
-    JSON.stringify({ object: 'WebUserActivity__c', contentType: 'CSV', operation: 'insert', lineEnding: 'LF' }),
-    'utf-8'
-  )
-
+function jsonToCsv(data) {
   let csv = converter.json2csv(data, {
     keys: ['createdAt', 'id', 'userId', 'event', 'data', 'dataTerms', 'dataZip', 'dataProgram', 'county']
   })
   const lines = csv.split('\n')
   lines[0] = 'CreatedAt__c,Eid__c,UserId__c,Name,Data__c,Data_Terms__c,Data_Zip__c,Data_Program__c,County__c'
   csv = lines.join('\n')
+  return csv
+}
+
+exports.jsonToCsv = jsonToCsv
+
+function writeCsvFile(csv) {
   fs.writeFileSync('./sfSync.csv', csv, 'utf-8')
+  return true
+}
+
+exports.writeCsvFile = writeCsvFile
+
+async function sendData() {
+  fs.writeFileSync(
+    './sfSync.json',
+    JSON.stringify({ object: 'WebUserActivity__c', contentType: 'CSV', operation: 'insert', lineEnding: 'LF' }),
+    'utf-8'
+  )
 
   const tokenInfo = await getToken()
   const token = tokenInfo.access_token
@@ -130,8 +142,10 @@ exports.deleteData = deleteData
 
 async function sfSync() {
   console.log('[sfSync] start')
-  const data = await getData()
-  await sendData(data)
+  const json = await getData()
+  const csv = jsonToCsv(json)
+  writeCsvFile(csv)
+  await sendData()
   info.lastSyncDate = new Date()
   fs.writeFileSync(INFO_FILE, JSON.stringify(info, null, 2), 'utf-8')
   console.log('[sfSync] end, wrote %s', INFO_FILE)
