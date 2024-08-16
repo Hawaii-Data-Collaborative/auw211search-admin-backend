@@ -14,7 +14,7 @@ if (!(SF_CONSUMER_KEY && SF_CONSUMER_SECRET)) {
 }
 
 const BASE_URL = 'https://auw211.my.salesforce.com'
-// const BASE_URL = 'https://login.salesforce.com'
+
 const INFO_FILE = './info.json'
 let info = {}
 if (fs.existsSync(INFO_FILE)) {
@@ -26,6 +26,8 @@ for (const d of zipData) {
   zipcodeMap[d.zip] = d.county.replace(' County', '')
 }
 
+let IS_UPSERT = false
+
 async function getData() {
   let args
   if (info?.lastSyncDate) {
@@ -34,6 +36,7 @@ async function getData() {
   }
 
   const data = await prisma.user_activity.findMany(args)
+
   for (const ua of data) {
     let json
     try {
@@ -71,12 +74,17 @@ async function getToken() {
 
 exports.getToken = getToken
 
+const insertKeys = ['createdAt', 'id', 'userId', 'event', 'data', 'dataTerms', 'dataZip', 'dataProgram', 'county']
+const upsertKeys = ['id', 'data', 'county']
+const insertHeader = 'CreatedAt__c,Eid__c,UserId__c,Name,Data__c,Data_Terms__c,Data_Zip__c,Data_Program__c,County__c'
+const upsertHeader = 'Eid__c,Data__c,County__c'
+
 function jsonToCsv(data) {
   let csv = converter.json2csv(data, {
-    keys: ['createdAt', 'id', 'userId', 'event', 'data', 'dataTerms', 'dataZip', 'dataProgram', 'county']
+    keys: IS_UPSERT ? upsertKeys : insertKeys
   })
   const lines = csv.split('\n')
-  lines[0] = 'CreatedAt__c,Eid__c,UserId__c,Name,Data__c,Data_Terms__c,Data_Zip__c,Data_Program__c,County__c'
+  lines[0] = IS_UPSERT ? upsertHeader : insertHeader
   csv = lines.join('\n')
   return csv
 }
@@ -93,7 +101,12 @@ exports.writeCsvFile = writeCsvFile
 async function sendData() {
   fs.writeFileSync(
     './sfSync.json',
-    JSON.stringify({ object: 'WebUserActivity__c', contentType: 'CSV', operation: 'insert', lineEnding: 'LF' }),
+    JSON.stringify({
+      object: 'WebUserActivity__c',
+      contentType: 'CSV',
+      operation: IS_UPSERT ? 'upsert' : 'insert',
+      lineEnding: 'LF'
+    }),
     'utf-8'
   )
 
@@ -154,6 +167,8 @@ async function sfSync() {
 exports.sfSync = sfSync
 
 if (require.main === module) {
+  IS_UPSERT = process.argv.includes('--upsert')
+
   if (process.argv.includes('--deleteData')) {
     deleteData()
   } else {
