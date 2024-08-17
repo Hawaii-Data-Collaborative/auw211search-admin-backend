@@ -103,16 +103,12 @@ exports.writeCsvFile = writeCsvFile
 async function sendData(isUpsert = false) {
   console.log('[sendData] isUpsert=%s', isUpsert)
 
-  fs.writeFileSync(
-    './sfSync.json',
-    JSON.stringify({
-      object: 'WebUserActivity__c',
-      contentType: 'CSV',
-      operation: isUpsert ? 'upsert' : 'insert',
-      lineEnding: 'LF'
-    }),
-    'utf-8'
-  )
+  const jobInfo = { object: 'WebUserActivity__c', contentType: 'CSV', operation: 'insert', lineEnding: 'LF' }
+  if (isUpsert) {
+    jobInfo.operation = 'upsert'
+    jobInfo.externalIdFieldName = 'Eid__c'
+  }
+  fs.writeFileSync('./sfSync.json', JSON.stringify(jobInfo), 'utf-8')
 
   const tokenInfo = await getToken()
   const token = tokenInfo.access_token
