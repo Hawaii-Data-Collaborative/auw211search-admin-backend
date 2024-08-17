@@ -26,8 +26,6 @@ for (const d of zipData) {
   zipcodeMap[d.zip] = d.county.replace(' County', '')
 }
 
-let IS_UPSERT = false
-
 async function getData() {
   let args
   if (info?.lastSyncDate) {
@@ -37,6 +35,14 @@ async function getData() {
 
   const data = await prisma.user_activity.findMany(args)
 
+  console.log('[getData] data.length=%s', data.length)
+
+  return data
+}
+
+exports.getData = getData
+
+function processData(data) {
   for (const ua of data) {
     let json
     try {
@@ -49,13 +55,9 @@ async function getData() {
     ua.dataProgram = json?.program ?? ''
     ua.county = zipcodeMap[ua.dataZip] ?? ''
   }
-
-  console.log('[getData] data.length=%s', data.length)
-
-  return data
 }
 
-exports.getData = getData
+exports.processData = processData
 
 async function getToken() {
   const body = querystring.stringify({
@@ -79,12 +81,12 @@ const upsertKeys = ['id', 'data', 'county']
 const insertHeader = 'CreatedAt__c,Eid__c,UserId__c,Name,Data__c,Data_Terms__c,Data_Zip__c,Data_Program__c,County__c'
 const upsertHeader = 'Eid__c,Data__c,County__c'
 
-function jsonToCsv(data) {
+function jsonToCsv(data, isUpsert = false) {
   let csv = converter.json2csv(data, {
-    keys: IS_UPSERT ? upsertKeys : insertKeys
+    keys: isUpsert ? upsertKeys : insertKeys
   })
   const lines = csv.split('\n')
-  lines[0] = IS_UPSERT ? upsertHeader : insertHeader
+  lines[0] = isUpsert ? upsertHeader : insertHeader
   csv = lines.join('\n')
   return csv
 }
@@ -98,13 +100,15 @@ function writeCsvFile(csv) {
 
 exports.writeCsvFile = writeCsvFile
 
-async function sendData() {
+async function sendData(isUpsert = false) {
+  console.log('[sendData] isUpsert=%s', isUpsert)
+
   fs.writeFileSync(
     './sfSync.json',
     JSON.stringify({
       object: 'WebUserActivity__c',
       contentType: 'CSV',
-      operation: IS_UPSERT ? 'upsert' : 'insert',
+      operation: isUpsert ? 'upsert' : 'insert',
       lineEnding: 'LF'
     }),
     'utf-8'
@@ -125,6 +129,8 @@ async function sendData() {
   const result3 = execSync(cmd3)
   console.log('[sendData] result3=%s', result3)
 }
+
+exports.sendData = sendData
 
 async function deleteData() {
   const tokenInfo = await getToken()
@@ -153,12 +159,13 @@ async function deleteData() {
 
 exports.deleteData = deleteData
 
-async function sfSync() {
-  console.log('[sfSync] start')
+async function sfSync(isUpsert) {
+  console.log('[sfSync] start, isUpsert=%s', isUpsert)
   const json = await getData()
-  const csv = jsonToCsv(json)
+  processData(json)
+  const csv = jsonToCsv(json, isUpsert)
   writeCsvFile(csv)
-  await sendData()
+  await sendData(isUpsert)
   info.lastSyncDate = new Date()
   fs.writeFileSync(INFO_FILE, JSON.stringify(info, null, 2), 'utf-8')
   console.log('[sfSync] end, wrote %s', INFO_FILE)
@@ -167,11 +174,11 @@ async function sfSync() {
 exports.sfSync = sfSync
 
 if (require.main === module) {
-  IS_UPSERT = process.argv.includes('--upsert')
+  const upsert = process.argv.includes('--upsert')
 
   if (process.argv.includes('--deleteData')) {
     deleteData()
   } else {
-    sfSync()
+    sfSync(upsert)
   }
 }

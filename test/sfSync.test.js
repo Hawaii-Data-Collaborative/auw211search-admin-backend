@@ -1,4 +1,5 @@
-const { sfSync, getToken, deleteData, getData, writeCsvFile, jsonToCsv } = require('../src/scripts/sfSync')
+const { prisma } = require('../src/prisma')
+const { sfSync, getToken, deleteData, getData, writeCsvFile, jsonToCsv, processData } = require('../src/scripts/sfSync')
 
 test('getToken', async () => {
   const rv = await getToken()
@@ -21,4 +22,19 @@ test('getData', async () => {
 test('deleteData', async () => {
   const rv = await deleteData()
   expect(rv).not.toBeNull()
+})
+
+test('query', async () => {
+  const data = await prisma.user_activity.findMany({
+    where: {
+      data: {
+        contains: '"zip":"9'
+      }
+    }
+  })
+
+  processData(data)
+  const csv = jsonToCsv(data)
+  writeCsvFile(csv)
+  // await sendData(true)
 })
