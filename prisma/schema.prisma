@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DB_FILE2")
+  provider = "postgresql"
+  url      = env("DB_URL")
 }
 
 model accessibility_for_disabilities {
@@ -42,13 +42,11 @@ model eligibility {
 }
 
 model favorite {
-  id                     String  @id
-  user_id                String
-  service_at_location_id String?
-  service_id             String?
-
-  service_at_location service_at_location? @relation(fields: [service_at_location_id], references: [id])
-  service             service?             @relation(fields: [service_id], references: [id])
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  siteProgramId String
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
 }
 
 model funding {
@@ -299,7 +297,6 @@ model service {
   service_at_location service_at_location[]
   language            language[]
   required_document   required_document[]
-  favorite            favorite[]
 }
 
 model service_area {
@@ -329,7 +326,6 @@ model service_at_location {
   location location? @relation(fields: [location_id], references: [id])
   service  service?  @relation(fields: [service_id], references: [id])
 
-  favorite favorite[]
   contact  contact[]
   phone    phone[]
   schedule schedule[]
@@ -493,8 +489,6 @@ model agency {
   Partner_Agency__c                      String?
   Partners_In_Care_PIC_Partner_Agency__c String?
 
-  Internal_Updates_Only__c String?
-
   attributes String?
 }
 
@@ -504,6 +498,7 @@ model program {
   OwnerId                             String?
   IsDeleted                           String?
   Name                                String?
+  AccountName                         String?
   CreatedDate                         String?
   CreatedById                         String?
   LastModifiedDate                    String?
@@ -918,20 +913,20 @@ model taxonomy {
 }
 
 model suggestion {
-  id         Int     @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   text       String
   taxonomies String
-  createdAt  String?
-  updatedAt  String?
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
 }
 
 model user_activity {
-  id        Int     @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   userId    String
   event     String
-  data      String?
-  createdAt String?
-  updatedAt String?
+  data      Json?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 }
 
 model settings {
@@ -943,55 +938,39 @@ model settings {
   trendingMinCount       Int
   trendingMaxShow        Int
   manualTrends           Boolean?
-  trends                 String?
+  trends                 Json?
   bannerText             String?
   bannerLink             String?
-  createdAt              String
+  createdAt              DateTime @default(now())
 }
 
 model category {
-  id        Int     @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   parentId  Int?
   name      String
   params    String?
   icon      String?
-  active    Boolean
-  createdAt String?
-  updatedAt String?
+  active    Boolean   @default(true)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 }
 
 model user {
-  id                 Int     @id @default(autoincrement())
+  id                 Int       @id @default(autoincrement())
+  type               String?
   email              String
   password           String
+  lastLogin          DateTime?
   passwordResetToken String?
-  passwordResetExp   String?
-  lastLogin          String?
-  createdAt          String?
-  updatedAt          String?
+  passwordResetExp   DateTime?
+  createdAt          DateTime? @default(now())
+  updatedAt          DateTime? @updatedAt
 }
 
 model session {
-  id        String  @id
+  id        String    @id
   userId    Int
-  data      String?
-  createdAt String?
-  updatedAt String?
-}
-
-model role {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String?
-  permissions String?
-  createdAt   String?
-  updatedAt   String?
-}
-
-model user_role {
-  id        Int     @id @default(autoincrement())
-  userId    Int
-  roleId    Int
-  createdAt String?
-  updatedAt String?
+  data      Json?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 }

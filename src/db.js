@@ -1,14 +1,18 @@
-const { Database } = require('sqlite3')
+const { Pool } = require('pg')
 
-const db = new Database(process.env.DB_FILE)
+const DB_URL = process.env.DB_URL
+if (!DB_URL) {
+  throw new Error('DB_URL is not set')
+}
+
+const pool = new Pool({
+  connectionString: DB_URL,
+  max: 3
+})
 
 async function query(sql) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, (err, rows) => {
-      if (err) return reject(err)
-      resolve(rows)
-    })
-  })
+  const result = await pool.query(sql)
+  return result.rows
 }
 
 exports.query = query
