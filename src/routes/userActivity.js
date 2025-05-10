@@ -1,4 +1,4 @@
-const debug = require('debug')('app:routes:userActivity')
+const debug = require('debug')('adminapp:routes:userActivity')
 const { getUserActivityEventNames, getUserActivityUsers } = require('../services/userActivity')
 
 async function userActivityEvents(req, res) {

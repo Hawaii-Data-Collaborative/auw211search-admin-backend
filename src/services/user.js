@@ -1,4 +1,4 @@
-const debug = require('debug')('app:services:user')
+const debug = require('debug')('adminapp:services:user')
 const { prisma } = require('../prisma')
 const authService = require('./auth')
 

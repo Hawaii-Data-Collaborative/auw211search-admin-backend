@@ -1,4 +1,4 @@
-const debug = require('debug')('app:email')
+const debug = require('debug')('adminapp:email')
 const nodemailer = require('nodemailer')
 
 const { SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_FROM, SEND_EMAILS } = process.env

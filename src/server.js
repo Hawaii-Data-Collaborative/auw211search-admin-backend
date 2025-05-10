@@ -1,7 +1,7 @@
 require('dotenv').config()
 const path = require('path')
 // eslint-disable-next-line no-unused-vars
-const debug = require('debug')('app:server')
+const debug = require('debug')('adminapp:server')
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')

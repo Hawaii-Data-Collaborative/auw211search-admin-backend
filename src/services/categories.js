@@ -1,4 +1,4 @@
-const debug = require('debug')('app:services:categories')
+const debug = require('debug')('adminapp:services:categories')
 const { prisma } = require('../prisma')
 
 async function getCategories({ active = true } = {}) {

@@ -1,6 +1,6 @@
 const express = require('express')
 const { getCategories, saveCategories } = require('../services/categories')
-const debug = require('debug')('app:routes:categories')
+const debug = require('debug')('adminapp:routes:categories')
 
 const router = express.Router()
 

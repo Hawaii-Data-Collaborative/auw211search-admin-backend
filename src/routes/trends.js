@@ -1,6 +1,6 @@
 const express = require('express')
 const { getTrends, saveTrends, getManualTrends } = require('../services/trends')
-const debug = require('debug')('app:routes:trends')
+const debug = require('debug')('adminapp:routes:trends')
 
 const router = express.Router()
 

@@ -1,4 +1,4 @@
-const debug = require('debug')('app:routes:resetPassword')
+const debug = require('debug')('adminapp:routes:resetPassword')
 const authService = require('../services/auth')
 
 async function createResetPasswordToken(req, res) {

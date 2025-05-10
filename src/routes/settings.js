@@ -1,5 +1,5 @@
 const express = require('express')
-const debug = require('debug')('app:routes:settings')
+const debug = require('debug')('adminapp:routes:settings')
 const { prisma } = require('../prisma')
 const settingsService = require('../services/settings')
 

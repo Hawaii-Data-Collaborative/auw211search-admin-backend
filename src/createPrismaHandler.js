@@ -1,6 +1,6 @@
 const { defaultHandler } = require('ra-data-simple-prisma')
 const meilisearch = require('./meilisearch')
-const debug = require('debug')('app:createPrismaHandler')
+const debug = require('debug')('adminapp:createPrismaHandler')
 const { prisma } = require('./prisma')
 const programService = require('./services/program')
 const userService = require('./services/user')

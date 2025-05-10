@@ -1,4 +1,4 @@
-const debug = require('debug')('app:routes:login')
+const debug = require('debug')('adminapp:routes:login')
 const authService = require('../services/auth')
 
 async function login(req, res) {

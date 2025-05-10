@@ -1,6 +1,6 @@
 const express = require('express')
 const userService = require('../services/user')
-const debug = require('debug')('app:routes:users')
+const debug = require('debug')('adminapp:routes:users')
 
 const router = express.Router()
 

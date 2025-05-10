@@ -1,6 +1,6 @@
 const express = require('express')
 const { getKeywordChart, getRelatedNeedsChart, getAllKeywordsChart } = require('../services/charts')
-const debug = require('debug')('app:routes:chart')
+const debug = require('debug')('adminapp:routes:chart')
 
 const router = express.Router()
 

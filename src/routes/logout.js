@@ -1,4 +1,4 @@
-const debug = require('debug')('app:routes:logout')
+const debug = require('debug')('adminapp:routes:logout')
 const authService = require('../services/auth')
 
 async function logout(req, res) {

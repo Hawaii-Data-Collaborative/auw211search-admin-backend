@@ -1,7 +1,7 @@
 const { exec } = require('child_process')
 const fs = require('fs/promises')
 const util = require('util')
-const debug = require('debug')('app:services:settings')
+const debug = require('debug')('adminapp:services:settings')
 
 const execAsync = util.promisify(exec)
 

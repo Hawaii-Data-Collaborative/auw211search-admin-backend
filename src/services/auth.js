@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt')
 const dayjs = require('../dayjs')
-const debug = require('debug')('app:services:auth')
+const debug = require('debug')('adminapp:services:auth')
 const { prisma } = require('../prisma')
 const emailService = require('./email')
 const { getRandomString } = require('../util')
