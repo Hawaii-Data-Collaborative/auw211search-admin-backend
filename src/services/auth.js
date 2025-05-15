@@ -6,7 +6,7 @@ const emailService = require('./email')
 const { getRandomString } = require('../util')
 
 const PROD = process.env.NODE_ENV === 'production'
-const COOKIE_NAME = 'AuwSession'
+const COOKIE_NAME = 'Auw211Session-Admin'
 exports.COOKIE_NAME = COOKIE_NAME
 
 const ONE_YEAR = 1000 * 60 * 60 * 24 * 365
@@ -99,6 +99,7 @@ exports.logout = logout
 
 async function getSession(req) {
   const sessionId = req.cookies[COOKIE_NAME]
+  debug('[getSession] sessionId=%s', sessionId)
   if (!sessionId) {
     return null
   }
@@ -118,6 +119,7 @@ exports.getSession = getSession
 async function getUser(req) {
   const session = await getSession(req)
   if (!session) {
+    debug('[getUser] no session')
     return null
   }
   const user = await prisma.user.findFirst({
@@ -126,6 +128,7 @@ async function getUser(req) {
     }
   })
 
+  debug('[getUser] user=%s', user.id)
   const userRoles = await prisma.user_role.findMany({ where: { userId: user.id } })
   const roles = await prisma.role.findMany({ where: { id: { in: userRoles.map(ur => ur.roleId) } } })
   const perms = []

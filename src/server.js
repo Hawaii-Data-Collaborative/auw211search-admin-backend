@@ -11,15 +11,16 @@ const routes = require('./routes')
 const authService = require('./services/auth')
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = Number(process.env.ADMIN_PORT || '8081')
 const PROD = process.env.NODE_ENV === 'production'
 const BASE_URL = PROD ? '/admin/api' : '/api'
 
 app.use(morgan('combined'))
+
 if (PROD) {
   app.use(
     '/admin/static',
-    express.static('../searchengine-admin-frontend/build/static', {
+    express.static('public/static', {
       cacheControl: false,
       lastModified: false,
       etag: false
@@ -64,7 +65,7 @@ app.use((req, res, next) => {
       // no op
     }
     if (isFileLike === false) {
-      return res.sendFile(path.resolve('../searchengine-admin-frontend/build/index.html'), {
+      return res.sendFile(path.resolve('public/index.html'), {
         cacheControl: false,
         lastModified: false,
         etag: false
@@ -75,7 +76,7 @@ app.use((req, res, next) => {
 })
 
 app.listen(port, () => {
-  console.log(`App server listening on port ${port}`)
+  debug('Admin server listening on port %s', port)
 })
 
 async function sessionMiddleware(req, res, next) {
@@ -88,3 +89,11 @@ async function sessionMiddleware(req, res, next) {
     next(new Error('Not authenticated'))
   }
 }
+
+process.on('uncaughtException', err => {
+  debug('[uncaughtException] %s', err)
+})
+
+process.on('unhandledRejection', (reason, promise) => {
+  debug('[unhandledRejection] %s %s', reason, promise)
+})
