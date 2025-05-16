@@ -974,3 +974,20 @@ model session {
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
 }
+
+model role {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  permissions String?
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+}
+
+model user_role {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  roleId    Int
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+}

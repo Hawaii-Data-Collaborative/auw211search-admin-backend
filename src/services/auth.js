@@ -30,7 +30,7 @@ function endSession(res) {
 async function login(email, rawPassword, res) {
   debug('[login] attempt for %s', email)
 
-  const user = await prisma.user.findFirst({ where: { email } })
+  const user = await prisma.user.findFirst({ where: { email, type: 'ADMIN' } })
   if (!user) {
     debug('[login] user not found')
     throw new Error('Invalid credentials')
@@ -124,7 +124,8 @@ async function getUser(req) {
   }
   const user = await prisma.user.findFirst({
     where: {
-      id: session.userId
+      id: session.userId,
+      type: 'ADMIN'
     }
   })
 
@@ -145,7 +146,7 @@ exports.getUser = getUser
 
 async function resetPassword(email, action = 'RESET') {
   let user = await prisma.user.findFirst({
-    where: { email }
+    where: { email, type: 'ADMIN' }
   })
 
   if (!user) {
@@ -185,7 +186,7 @@ exports.resetPassword = resetPassword
 
 async function checkResetPasswordToken(passwordResetToken) {
   let user = await prisma.user.findFirst({
-    where: { passwordResetToken }
+    where: { passwordResetToken, type: 'ADMIN' }
   })
 
   if (!user) {
@@ -204,7 +205,7 @@ exports.checkResetPasswordToken = checkResetPasswordToken
 
 async function changePassword(email, rawPassword, res) {
   let user = await prisma.user.findFirst({
-    where: { email }
+    where: { email, type: 'ADMIN' }
   })
 
   if (!user) {
