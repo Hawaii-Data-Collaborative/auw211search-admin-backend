@@ -24,7 +24,7 @@ async function getKeywordChart({ start, end } = {}) {
 
   let map = {}
   for (const ua of uaList) {
-    const data = JSON.parse(ua.data)
+    const data = ua.data
     const key = data.terms ? data.terms.toLowerCase().trim() : ''
     if (key) {
       if (!map[key]) {
@@ -77,7 +77,7 @@ async function getAllKeywordsChart({ start, end } = {}) {
     rv.push({
       date: k,
       count: v.length,
-      keywords: [...new Set(v.map(ua => JSON.parse(ua.data).terms))],
+      keywords: [...new Set(v.map(ua => ua.data.terms))],
       users: [...new Set(v.map(ua => ua.userId))],
       data: v
     })
@@ -120,7 +120,7 @@ async function getRelatedNeedsChart({ start, end } = {}) {
     let prevUa
     let prevSearchText
     for (const ua of uaList) {
-      const searchText = JSON.parse(ua.data).terms?.toLowerCase().trim()
+      const searchText = ua.data.terms?.toLowerCase().trim()
       if (searchText) {
         nodes.add(searchText)
         if (prevUa) {
