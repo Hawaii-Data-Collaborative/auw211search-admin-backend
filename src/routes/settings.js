@@ -8,6 +8,7 @@ const router = express.Router()
 router.get('/', async (req, res) => {
   try {
     const settings = await prisma.settings.findUnique({ where: { id: 1 } })
+    delete settings.createdAt
     return res.json(settings)
   } catch (err) {
     debug(err)
@@ -18,6 +19,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const data = req.body
+    debug('data=%j', data)
     const settings = await prisma.settings.update({ where: { id: 1 }, data })
     return res.json(settings)
   } catch (err) {

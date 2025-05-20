@@ -1,18 +1,20 @@
 const dayjs = require('../dayjs')
-const db = require('../db')
 const { prisma } = require('../prisma')
 
-const CREATED_DATE_AS_INT = `cast(replace(substr("createdAt", 0, 11), '-', '') as integer)`
-
 async function getTrends() {
-  const settings = await prisma.settings.findUnique({ where: { id: 1 }, rejectOnNotFound: true })
-  const start = await getTrendStartDateAsInt(settings)
-  const query = `select * from "user_activity" where "event" = 'Search.Keyword' and ${CREATED_DATE_AS_INT} >= ${start}`
-  const rows = await db.query(query)
+  const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } })
+  const start = await getTrendStartDate(settings)
+  const ualist = await prisma.user_activity.findMany({
+    where: {
+      event: 'Search.Keyword',
+      createdAt: {
+        gte: start
+      }
+    }
+  })
   const searchTextToCount = {}
-  for (const row of rows) {
+  for (const row of ualist) {
     try {
-      row.data = JSON.parse(row.data)
       if (row.data.terms && !row.data.taxonomies) {
         const text = row.data.terms.toLowerCase().trim()
         if (!searchTextToCount[text]) {
@@ -39,24 +41,20 @@ async function getTrends() {
 
 exports.getTrends = getTrends
 
-async function getTrendStartDateAsInt(settings) {
+async function getTrendStartDate(settings) {
   let unit = settings.trendingRange || 'month'
   let value = 1
   if (unit === 'quarter') {
     unit = 'month'
     value = 3
   }
-  const start = Number(dayjs().subtract(value, unit).format('YYYYMMDD'))
+  const start = dayjs().subtract(value, unit).toDate()
   return start
 }
 
 async function getManualTrends() {
-  const settings = await prisma.settings.findUnique({ where: { id: 1 }, rejectOnNotFound: true })
-  let rv = []
-  if (settings.trends) {
-    rv = JSON.parse(settings.trends)
-  }
-  return rv
+  const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } })
+  return settings.trends
 }
 
 exports.getManualTrends = getManualTrends
