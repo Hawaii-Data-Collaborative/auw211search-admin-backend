@@ -111,7 +111,9 @@ async function getSession(req) {
   if (sessions.length !== 1) {
     return null
   }
-  return sessions[0]
+  const session = sessions[0]
+  req.session = session
+  return session
 }
 
 exports.getSession = getSession
