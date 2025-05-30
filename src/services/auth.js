@@ -172,7 +172,7 @@ async function resetPassword(email, action = 'RESET') {
 
   const subject = action === 'RESET' ? 'Password Reset' : 'Activate Account'
   // prettier-ignore
-  const url = `${process.env.ORIGIN}/#/reset_password?email=${encodeURIComponent(email)}&action=${action.toLowerCase()}&token=${encodeURIComponent(passwordResetToken)}`
+  const url = `${process.env.ADMIN_ORIGIN}/#/reset_password?email=${encodeURIComponent(email)}&action=${action.toLowerCase()}&token=${encodeURIComponent(passwordResetToken)}`
   // prettier-ignore
   const html = `
     <p>Aloha,</p>
