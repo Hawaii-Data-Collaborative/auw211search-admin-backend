@@ -5,7 +5,7 @@ const { prisma } = require('../prisma')
 const CREATED_DATE_AS_INT = `cast(replace(substr("createdAt", 0, 11), '-', '') as integer)`
 
 async function getTrends() {
-  const settings = await prisma.settings.findUnique({ where: { id: 1 }, rejectOnNotFound: true })
+  const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } })
   const start = await getTrendStartDateAsInt(settings)
   const query = `select * from "user_activity" where "event" = 'Search.Keyword' and ${CREATED_DATE_AS_INT} >= ${start}`
   const rows = await db.query(query)
@@ -51,7 +51,7 @@ async function getTrendStartDateAsInt(settings) {
 }
 
 async function getManualTrends() {
-  const settings = await prisma.settings.findUnique({ where: { id: 1 }, rejectOnNotFound: true })
+  const settings = await prisma.settings.findUniqueOrThrow({ where: { id: 1 } })
   let rv = []
   if (settings.trends) {
     rv = JSON.parse(settings.trends)
