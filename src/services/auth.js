@@ -6,7 +6,7 @@ const emailService = require('./email')
 const { getRandomString } = require('../util')
 
 const PROD = process.env.NODE_ENV === 'production'
-const COOKIE_NAME = 'AuwSession'
+const COOKIE_NAME = 'Auw211Session-Admin'
 exports.COOKIE_NAME = COOKIE_NAME
 
 const ONE_YEAR = 1000 * 60 * 60 * 24 * 365
@@ -30,7 +30,7 @@ function endSession(res) {
 async function login(email, rawPassword, res) {
   debug('[login] attempt for %s', email)
 
-  const user = await prisma.user.findFirst({ where: { email } })
+  const user = await prisma.user.findFirst({ where: { email, type: 'ADMIN' } })
   if (!user) {
     debug('[login] user not found')
     throw new Error('Invalid credentials')
@@ -99,6 +99,7 @@ exports.logout = logout
 
 async function getSession(req) {
   const sessionId = req.cookies[COOKIE_NAME]
+  debug('[getSession] sessionId=%s', sessionId)
   if (!sessionId) {
     return null
   }
@@ -110,7 +111,9 @@ async function getSession(req) {
   if (sessions.length !== 1) {
     return null
   }
-  return sessions[0]
+  const session = sessions[0]
+  req.session = session
+  return session
 }
 
 exports.getSession = getSession
@@ -118,14 +121,17 @@ exports.getSession = getSession
 async function getUser(req) {
   const session = await getSession(req)
   if (!session) {
+    debug('[getUser] no session')
     return null
   }
   const user = await prisma.user.findFirst({
     where: {
-      id: session.userId
+      id: session.userId,
+      type: 'ADMIN'
     }
   })
 
+  debug('[getUser] user=%s', user.id)
   const userRoles = await prisma.user_role.findMany({ where: { userId: user.id } })
   const roles = await prisma.role.findMany({ where: { id: { in: userRoles.map(ur => ur.roleId) } } })
   const perms = []
@@ -142,7 +148,7 @@ exports.getUser = getUser
 
 async function resetPassword(email, action = 'RESET') {
   let user = await prisma.user.findFirst({
-    where: { email }
+    where: { email, type: 'ADMIN' }
   })
 
   if (!user) {
@@ -182,7 +188,7 @@ exports.resetPassword = resetPassword
 
 async function checkResetPasswordToken(passwordResetToken) {
   let user = await prisma.user.findFirst({
-    where: { passwordResetToken }
+    where: { passwordResetToken, type: 'ADMIN' }
   })
 
   if (!user) {
@@ -201,7 +207,7 @@ exports.checkResetPasswordToken = checkResetPasswordToken
 
 async function changePassword(email, rawPassword, res) {
   let user = await prisma.user.findFirst({
-    where: { email }
+    where: { email, type: 'ADMIN' }
   })
 
   if (!user) {

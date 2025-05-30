@@ -962,6 +962,7 @@ model category {
 
 model user {
   id                 Int     @id @default(autoincrement())
+  type               String?
   email              String
   password           String
   passwordResetToken String?
