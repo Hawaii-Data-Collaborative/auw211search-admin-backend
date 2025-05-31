@@ -1,7 +1,7 @@
 const debug = require('debug')('app:email')
 const { Resend } = require('resend')
 
-const { RESEND_API_KEY, SEND_EMAILS, SMTP_FROM } = process.env
+const { EMAIL_API_KEY, SEND_EMAILS, SMTP_FROM } = process.env
 
 async function send({ to, subject, text, html }) {
   if (!SEND_EMAILS) {
@@ -9,7 +9,7 @@ async function send({ to, subject, text, html }) {
     return
   }
 
-  const resend = new Resend(RESEND_API_KEY)
+  const resend = new Resend(EMAIL_API_KEY)
 
   try {
     const result = await resend.emails.send({
