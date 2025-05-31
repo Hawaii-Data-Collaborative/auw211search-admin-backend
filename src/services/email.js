@@ -1,7 +1,7 @@
 const debug = require('debug')('app:email')
-const Mailgun = require('mailgun.js')
+const { Resend } = require('resend')
 
-const { MAILGUN_API_KEY, MAILGUN_DOMAIN, SEND_EMAILS, SMTP_FROM } = process.env
+const { RESEND_API_KEY, SEND_EMAILS, SMTP_FROM } = process.env
 
 async function send({ to, subject, text, html }) {
   if (!SEND_EMAILS) {
@@ -9,24 +9,24 @@ async function send({ to, subject, text, html }) {
     return
   }
 
-  const mailgun = new Mailgun(FormData)
+  const resend = new Resend(RESEND_API_KEY)
 
-  const mg = mailgun.client({
-    username: 'api',
-    key: MAILGUN_API_KEY
-  })
+  try {
+    const result = await resend.emails.send({
+      from: SMTP_FROM,
+      to,
+      subject,
+      text,
+      html
+    })
 
-  const result = await mg.messages.create(MAILGUN_DOMAIN, {
-    from: SMTP_FROM,
-    to: [to],
-    subject,
-    text,
-    html
-  })
+    debug('[send] result=%j', result)
 
-  debug('[send] result=%j', result)
-
-  return result
+    return result
+  } catch (err) {
+    debug('[send] %s', err)
+    throw err
+  }
 }
 
 exports.send = send
