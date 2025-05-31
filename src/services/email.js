@@ -1,16 +1,7 @@
 const debug = require('debug')('app:email')
-const nodemailer = require('nodemailer')
+const Mailgun = require('mailgun.js')
 
-const { SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_FROM, SEND_EMAILS } = process.env
-
-const transporter = nodemailer.createTransport({
-  host: SMTP_HOST,
-  secure: true,
-  auth: {
-    user: SMTP_USER,
-    pass: SMTP_PASS
-  }
-})
+const { MAILGUN_API_KEY, MAILGUN_DOMAIN, SEND_EMAILS, SMTP_FROM } = process.env
 
 async function send({ to, subject, text, html }) {
   if (!SEND_EMAILS) {
@@ -18,15 +9,23 @@ async function send({ to, subject, text, html }) {
     return
   }
 
-  const result = await transporter.sendMail({
+  const mailgun = new Mailgun(FormData)
+
+  const mg = mailgun.client({
+    username: 'api',
+    key: MAILGUN_API_KEY
+  })
+
+  const result = await mg.messages.create(MAILGUN_DOMAIN, {
     from: SMTP_FROM,
-    to,
+    to: [to],
     subject,
     text,
     html
   })
 
-  debug('[send]: result=%j', result)
+  debug('[send] result=%j', result)
+
   return result
 }
 
